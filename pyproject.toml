@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ib_fundamental"
+version = "0.0.1"
+authors = [{ name = "gnzsnz" }]
+description = "Interactive Brokers Fundamental data for humans"
+readme = "README.md"
+requires-python = ">=3.7"
+license = { file = "LICENSE.txt" }
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: Apache License Version 2.0",
+  "Operating System :: OS Independent",
+  "Development Status :: 3 - Alpha",
+]
+dependencies = ["ib_async", "pandas", "attrs"]
+
+[project.urls]
+"Homepage" = "https://github.com/quantbelt/ib_fundamental"
+"Bug Tracker" = "https://github.com/quantbelt/ib_fundamental/issues"
+
+[project.optional-dependencies] # Optional
+dev = ["black", "pylint", "isort", "mypy", "pre-commit"]
+#test = ["coverage"]
+
+[tool.isort]
+profile = "black"
+
+[tool.setuptools]
+packages = ["ib_fundamental"]
+
+[tool.pylint.format]
+# black compatibility
+# https://black.readthedocs.io/en/stable/guides/using_black_with_other_tools.html#pylint
+max-line-length = "88"
