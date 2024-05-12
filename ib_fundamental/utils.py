@@ -26,7 +26,7 @@ def to_dataframe(table: list[dict], key: str = None, index: Index = None) -> Dat
     """
     df = DataFrame(table, index=index)
     if key is not None:
-        df.set_index(keys=key, drop=True, inplace=True).sort_index()
+        df = df.set_index(keys=key, drop=True).sort_index()
     return df
 
 
