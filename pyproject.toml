@@ -16,14 +16,14 @@ classifiers = [
   "Operating System :: OS Independent",
   "Development Status :: 3 - Alpha",
 ]
-dependencies = ["ib_async", "pandas", "attrs"]
+dependencies = ["ib_async", "pandas", "orjson"]
 
 [project.urls]
 "Homepage" = "https://github.com/quantbelt/ib_fundamental"
 "Bug Tracker" = "https://github.com/quantbelt/ib_fundamental/issues"
 
 [project.optional-dependencies] # Optional
-dev = ["black", "pylint", "isort", "mypy", "pre-commit"]
+dev = ["black", "pylint", "isort", "mypy", "pre-commit", "pandas-stubs"]
 #test = ["coverage"]
 
 [tool.isort]

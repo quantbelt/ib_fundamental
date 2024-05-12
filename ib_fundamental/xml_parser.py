@@ -1,0 +1,393 @@
+#!/usr/bin/env python3
+"""
+Created on Fri Apr 30 16:21:58 2021
+
+@author: gonzo
+"""
+# pylint: disable=attribute-defined-outside-init
+# pylint: disable=missing-function-docstring
+__all__ = [
+    "XMLParser",
+]
+
+from datetime import datetime
+
+import pandas as pd
+
+from .ib_client import IBClient
+from .objects import (
+    AnalystForecast,
+    CompanyInfo,
+    Dividend,
+    DividendPerShare,
+    EarningsPerShare,
+    ForwardYear,
+    OwnershipCompany,
+    OwnershipDetails,
+    OwnershipReport,
+    PeriodType,
+    RatioSnapshot,
+    Revenue,
+    StatementCode,
+    StatementMap,
+    StatementMapping,
+    statement_map,
+)
+from .utils import camel_to_snake
+from .xml_report import XMLReport
+
+fromisoformat = datetime.fromisoformat
+
+
+class XMLParser:
+    """Parser for IBKR xml company fundamental data"""
+
+    def __init__(self, ib_client: IBClient):
+        self.xml_report = XMLReport(ib_client=ib_client)
+
+    def __repr__(self):
+        cls_name = self.__class__.__qualname__
+        return f"{cls_name}(ib_client={self.xml_report.client!r}"
+
+    def get_fin_statement(
+        self,
+        statement: StatementCode = "INC",
+        period: PeriodType = "annual",
+        end_date: str = None,  # FIXME
+    ):
+        """
+
+        Parameters
+        ----------
+        period : 'annual' OR 'quarter', mandatory.
+            statement period, annual or quarter. The default is 'annual'.
+        statement : 'Income', 'Balance'or 'Cash'. mandatory.
+            the statement to be generated
+        end_date : 'YYYY-MM-DD' str format, optional
+            statement date. The default is None.
+
+        Raises
+        ------
+        Exception
+            if period parameter is missing
+
+        Returns
+        -------
+        list
+            DESCRIPTION.
+
+        """
+        xpath = {
+            "annual": ".//AnnualPeriods/FiscalPeriod",
+            "quarter": ".//InterimPeriods/FiscalPeriod",
+            "xp_fiscal_period": '[@EndDate="{0}"]/Statement[@Type="{1}"]/lineItem',
+        }
+
+        # statement type
+        xp_statement = statement
+        # period type
+        xp_line = xpath[period]
+        # filter by end_date
+        if end_date is not None:
+            xp_line_ed = xp_line + f'[@EndDate="{end_date}"]'
+        else:
+            xp_line_ed = xp_line
+
+        fp = self.xml_report.fin_statements.findall(xp_line_ed)
+
+        if period == "quarter":
+            fperiods = [
+                {
+                    "period": fperiod.attrib["Type"],
+                    "end_date": fperiod.attrib["EndDate"],
+                    "fiscal_year": fperiod.attrib["FiscalYear"],
+                    "period_number": fperiod.attrib["FiscalPeriodNumber"],
+                    "date_10Q": fperiod.find(".//Source").attrib["Date"],
+                }
+                for fperiod in fp
+            ]
+        else:
+            fperiods = [
+                {
+                    "period": fperiod.attrib["Type"],
+                    "end_date": fperiod.attrib["EndDate"],
+                    "fiscal_year": fperiod.attrib["FiscalYear"],
+                    "date_10K": fperiod.find(".//Source").attrib["Date"],
+                }
+                for fperiod in fp
+            ]
+
+        fs = []
+
+        for p in fperiods:
+            if end_date is not None:
+                ed = end_date
+            else:
+                ed = p["end_date"]
+
+            xp = xpath["xp_fiscal_period"].format(ed, xp_statement)
+            fs_line = self.xml_report.fin_statements.findall(xp_line + xp)
+
+            fs.append({i.attrib["coaCode"].lower(): float(i.text) for i in fs_line})
+
+        return [statement_map[statement](**i, **j) for i, j in zip(fperiods, fs)]
+
+    def get_map_items(self) -> StatementMapping:
+        """
+        mapItems
+
+        Returns
+        -------
+        list of dict with FinStatement name mapping
+        """
+
+        fa = ".//COAMap/"
+        fs = self.xml_report.fin_statements.findall(fa)
+
+        _map_items: StatementMapping = [
+            StatementMap(
+                coa_item=mi.attrib["coaItem"],
+                map_item=mi.text,
+                statement_type=mi.attrib["statementType"],
+                line_id=int(mi.attrib["lineID"]),
+            )
+            for mi in fs
+        ]
+        return _map_items
+
+    def get_ownership_report(self) -> OwnershipReport:
+        """Ownership Report"""
+        fs = self.xml_report.ownership
+        (isin,) = fs.findall("./ISIN")
+        (fa,) = fs.findall("./floatShares")
+        company = OwnershipCompany(
+            ISIN=isin.text,
+            float_shares=int(fa.text),
+            as_of_date=fromisoformat(fa.attrib["asofDate"]),
+        )
+        _l = []
+        fa = fs.findall("./Owner")
+
+        for i in fa:
+            d = {}
+            d["owner_id"] = i.attrib["ownerId"]
+
+            for j in i.findall("./"):
+                if "as_of_date" not in d and j.attrib:
+                    d["as_of_date"] = datetime.fromisoformat(j.attrib["asofDate"])
+                d[j.tag] = float(j.text) if j.tag == "quantity" else j.text
+
+            _l.append(OwnershipDetails(**d))
+
+        return OwnershipReport(company=company, ownership_details=_l)
+
+    def get_dividend(self) -> list[Dividend]:
+        """get dividends"""
+        fa = "./Dividends"
+        fs = self.xml_report.fin_summary.find(fa)
+        curr = fs.attrib["currency"]
+        _dividend = [
+            Dividend(
+                type=i.attrib["type"],
+                ex_date=fromisoformat(i.attrib["exDate"]),
+                record_date=fromisoformat(i.attrib["recordDate"]),
+                pay_date=fromisoformat(i.attrib["payDate"]),
+                declaration_date=fromisoformat(i.attrib["declarationDate"]),
+                currency=curr,
+                value=float(i.text),
+            )
+            for i in fs
+        ]
+        return _dividend
+
+    def get_div_ps_q(self) -> list[DividendPerShare]:
+        """Dividend per share"""
+        # FIXME add parameter to handle A and TTM
+        fa = "./DividendPerShares"
+        fs = self.xml_report.fin_summary.find(fa)
+        curr = fs.attrib["currency"]
+
+        _div_ps_q = [
+            DividendPerShare(
+                as_of_date=fromisoformat(i.attrib["asofDate"]),
+                report_type=i.attrib["reportType"],
+                period=i.attrib["period"],
+                currency=curr,
+                value=float(i.text),
+            )
+            for i in fs
+            if i.attrib["reportType"] == "A" and i.attrib["period"] == "3M"
+        ]
+        return _div_ps_q
+
+    def get_div_ps_ttm(self) -> list[DividendPerShare]:
+        """Dividend per share trailing 12 months"""
+        fa = "./DividendPerShares"
+        fs = self.xml_report.fin_summary.find(fa)
+        curr = fs.attrib["currency"]
+        _div_ps_ttm = [
+            DividendPerShare(
+                as_of_date=fromisoformat(i.attrib["asofDate"]),
+                report_type=i.attrib["reportType"],
+                period=i.attrib["period"],
+                currency=curr,
+                value=float(i.text),
+            )
+            for i in fs
+            if i.attrib["reportType"] == "TTM"
+        ]
+        return _div_ps_ttm
+
+    def get_revenue_ttm(self) -> list[Revenue]:
+        """Revenue trailing 12 months"""
+        fa = './TotalRevenues/*[@reportType="TTM"]'
+        fs = self.xml_report.fin_summary.findall(fa)
+        _revenue_ttm = [
+            Revenue(
+                as_of_date=fromisoformat(tr.attrib["asofDate"]),
+                report_type="TTM",
+                revenue=float(tr.text),
+            )
+            for tr in fs
+        ]
+        return _revenue_ttm
+
+    def get_revenue_q(self) -> list[Revenue]:
+        """Quarterly Revenue"""
+        fa = './TotalRevenues/*[@reportType="A"]'
+        fs = self.xml_report.fin_summary.findall(fa)
+
+        _revenue_q = [
+            Revenue(
+                as_of_date=fromisoformat(tr.attrib["asofDate"]),
+                report_type="A",
+                revenue=float(tr.text),
+            )
+            for tr in fs
+            if tr.attrib["period"] == "3M"
+        ]
+        return _revenue_q
+
+    def get_eps_ttm(self) -> list[EarningsPerShare]:
+        """Earnings per share"""
+        fa = './EPSs/*[@reportType="TTM"]'
+        fs = self.xml_report.fin_summary.findall(fa)
+
+        _eps_ttm = [
+            EarningsPerShare(
+                as_of_date=fromisoformat(e.attrib["asofDate"]),
+                report_type="TTM",
+                eps=float(e.text),
+            )
+            for e in fs
+        ]
+        return _eps_ttm
+
+    def get_eps_q(self) -> list[EarningsPerShare]:
+        """Earnings per share quarterly"""
+        fa = './EPSs/*[@reportType="A"]'
+        fs = self.xml_report.fin_summary.findall(fa)
+
+        _eps_q = [
+            EarningsPerShare(
+                as_of_date=fromisoformat(e.attrib["asofDate"]),
+                report_type="A",
+                eps=float(e.text),
+            )
+            for e in fs
+            if e.attrib["period"] == "3M"
+        ]
+        return _eps_q
+
+    def get_analyst_forecast(self) -> AnalystForecast:
+        """Analyst forecast"""
+        fa = ".//ForecastData/Ratio"
+        fs = self.xml_report.snapshot.findall(fa)
+
+        _analyst_forecast = AnalystForecast(
+            **{
+                camel_to_snake(g.attrib["FieldName"]): float(
+                    g.findall("./Value")[0].text
+                )
+                for g in fs
+            }
+        )
+        return _analyst_forecast
+
+    def get_ratios(self) -> RatioSnapshot:
+        """Company ratios shanpshot"""
+        fa = ".//Ratios/Group/Ratio"
+        fs = self.xml_report.snapshot.findall(fa)
+
+        _ratios = RatioSnapshot(
+            **{
+                r.attrib["FieldName"].lower(): (
+                    fromisoformat(r.text) if r.attrib["Type"] == "D" else float(r.text)
+                )
+                for r in fs
+            }
+        )
+        return _ratios
+
+    def get_fy_estimates(self) -> list[ForwardYear]:
+        """Forward Year estimates"""
+        fs = self.xml_report.resc
+        _fy_estimates = [
+            ForwardYear(
+                type="Estimate",
+                item=a.attrib["type"],
+                unit=a.attrib["unit"],
+                period_type=p.attrib["periodType"],
+                fyear=int(p.attrib["fYear"]),
+                end_month=int(p.attrib["endMonth"]),
+                end_cal_year=int(p.attrib["endCalYear"]),
+                value=float(e[0].text),
+                est_type=e.attrib["type"],
+            )
+            for a in fs.iter("FYEstimate")
+            for p in a.iter("FYPeriod")
+            for e in p.iter("ConsEstimate")
+        ]
+        return _fy_estimates
+
+    def get_fy_actuals(self) -> list[ForwardYear]:
+        """Forward year actuals"""
+        fs = self.xml_report.resc
+        _fy_actuals = [
+            ForwardYear(
+                type="Actual",
+                item=a.attrib["type"],
+                unit=a.attrib["unit"],
+                period_type=p.attrib["periodType"],
+                fyear=int(p.attrib["fYear"]),
+                end_month=int(p.attrib["endMonth"]),
+                end_cal_year=int(p.attrib["endCalYear"]),
+                value=float(p[0].text),
+                updated=pd.to_datetime(p[0].attrib["updated"]),
+            )
+            for a in fs.iter("FYActual")
+            for p in a.iter("FYPeriod")
+        ]
+        return _fy_actuals
+
+    def get_company_info(self) -> CompanyInfo:
+        """Company Info"""
+        fs = self.xml_report.fin_statements
+        coids = {r.attrib["Type"]: r.text for r in fs.findall("./CoIDs/CoID")}
+        issue_id = {
+            r.attrib["Type"]: r.text for r in fs.findall("./Issues/Issue/IssueID")
+        }
+        exchange = {r.tag: r.text for r in fs.findall("./Issues/Issue/Exchange")}
+        exchange_code = {
+            "code": r.attrib["Code"] for r in fs.findall("./Issues/Issue/Exchange")
+        }
+        company_info = CompanyInfo(
+            ticker=issue_id["Ticker"],
+            company_name=coids["CompanyName"],
+            cik=coids["CIKNo"],
+            exchange_code=exchange_code["code"],
+            exchange=exchange["Exchange"],
+            irs=coids["IRSNo"],
+        )
+        self.__company_info = company_info
+        return self.__company_info
