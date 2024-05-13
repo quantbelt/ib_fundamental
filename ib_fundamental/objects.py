@@ -4,11 +4,11 @@ Created on Thu May 9 16:21:58 2021
 
 @author: gonzo
 """
+# pylint: disable=too-many-instance-attributes
 from dataclasses import dataclass
 from datetime import date, datetime
 from typing import Literal, Optional
 
-# StatementType = Literal["Income", "Balance", "Cash"]
 StatementCode = Literal["INC", "BAL", "CAS"]
 PeriodType = Literal["annual", "quarter"]
 StatementPeriod = Literal["Interim", "Annual"]
@@ -275,9 +275,7 @@ class ForwardYear:
     end_month: int
     end_cal_year: int
     value: float
-    est_type: Optional[
-        Literal["High", "Low", "Mean", "Median", "NumOfEst", "StdDev"]
-    ] = ""
+    est_type: Literal["High", "Low", "Mean", "Median", "NumOfEst", "StdDev", ""] = ""
     updated: Optional[datetime] = None
 
 

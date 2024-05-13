@@ -40,6 +40,8 @@ fromisoformat = datetime.fromisoformat
 class CompanyFundamental:
     """Company fundamental data"""
 
+    # pylint: disable=too-many-arguments,too-many-public-methods
+    # pylint: disable=too-many-instance-attributes
     def __init__(
         self,
         symbol: str,

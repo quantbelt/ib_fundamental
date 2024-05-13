@@ -11,7 +11,7 @@ __all__ = [
 
 from typing import Optional
 
-from ib_async import IB, FundamentalRatios, Stock
+from ib_async import IB, FundamentalRatios, Stock, Ticker
 
 from .objects import ReportType
 
@@ -19,6 +19,9 @@ from .objects import ReportType
 class IBClient:
     """IB client"""
 
+    ticker: Ticker
+
+    # pylint: disable=too-many-arguments
     def __init__(
         self,
         symbol: str,
