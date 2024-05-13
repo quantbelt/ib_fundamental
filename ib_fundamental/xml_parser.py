@@ -4,13 +4,12 @@ Created on Fri Apr 30 16:21:58 2021
 
 @author: gonzo
 """
-# pylint: disable=attribute-defined-outside-init
-# pylint: disable=missing-function-docstring
 __all__ = [
     "XMLParser",
 ]
 
-from datetime import datetime
+from datetime import date, datetime
+from typing import Literal, Optional
 
 import pandas as pd
 
@@ -38,6 +37,9 @@ from .xml_report import XMLReport
 
 fromisoformat = datetime.fromisoformat
 
+SummaryReportType = Literal["A", "TTM", "R", "P", None]
+SummaryPeriod = Literal["12M", "3M", None]
+
 
 class XMLParser:
     """Parser for IBKR xml company fundamental data"""
@@ -53,7 +55,7 @@ class XMLParser:
         self,
         statement: StatementCode = "INC",
         period: PeriodType = "annual",
-        end_date: str = None,  # FIXME
+        end_date: Optional[date] = None,
     ):
         """
 
@@ -89,7 +91,7 @@ class XMLParser:
         xp_line = xpath[period]
         # filter by end_date
         if end_date is not None:
-            xp_line_ed = xp_line + f'[@EndDate="{end_date}"]'
+            xp_line_ed = xp_line + f'[@EndDate="{end_date.isoformat()}"]'
         else:
             xp_line_ed = xp_line
 
@@ -121,7 +123,7 @@ class XMLParser:
 
         for p in fperiods:
             if end_date is not None:
-                ed = end_date
+                ed = end_date.isoformat()
             else:
                 ed = p["end_date"]
 
@@ -132,7 +134,9 @@ class XMLParser:
 
         return [statement_map[statement](**i, **j) for i, j in zip(fperiods, fs)]
 
-    def get_map_items(self) -> StatementMapping:
+    def get_map_items(
+        self, statement: Optional[StatementCode] = None
+    ) -> StatementMapping:
         """
         mapItems
 
@@ -152,6 +156,8 @@ class XMLParser:
                 line_id=int(mi.attrib["lineID"]),
             )
             for mi in fs
+            if statement is None
+            or (statement is not None and mi.attrib["statementType"] == statement)
         ]
         return _map_items
 
@@ -200,14 +206,17 @@ class XMLParser:
         ]
         return _dividend
 
-    def get_div_ps_q(self) -> list[DividendPerShare]:
+    def get_div_per_share(
+        self,
+        report_type: SummaryReportType = None,
+        period: SummaryPeriod = None,
+    ) -> list[DividendPerShare]:
         """Dividend per share"""
-        # FIXME add parameter to handle A and TTM
         fa = "./DividendPerShares"
         fs = self.xml_report.fin_summary.find(fa)
         curr = fs.attrib["currency"]
 
-        _div_ps_q = [
+        _div_ps = [
             DividendPerShare(
                 as_of_date=fromisoformat(i.attrib["asofDate"]),
                 report_type=i.attrib["reportType"],
@@ -216,88 +225,67 @@ class XMLParser:
                 value=float(i.text),
             )
             for i in fs
-            if i.attrib["reportType"] == "A" and i.attrib["period"] == "3M"
+            if (
+                report_type is None
+                or (report_type is not None and i.attrib["reportType"] == report_type)
+            )
+            and (
+                period is None or (period is not None and i.attrib["period"] == period)
+            )
         ]
-        return _div_ps_q
+        return _div_ps
 
-    def get_div_ps_ttm(self) -> list[DividendPerShare]:
-        """Dividend per share trailing 12 months"""
-        fa = "./DividendPerShares"
+    def get_revenue(
+        self,
+        report_type: SummaryReportType = None,
+        period: SummaryPeriod = None,
+    ) -> list[Revenue]:
+        """Revenue"""
+        fa = "./TotalRevenues"
         fs = self.xml_report.fin_summary.find(fa)
-        curr = fs.attrib["currency"]
-        _div_ps_ttm = [
-            DividendPerShare(
-                as_of_date=fromisoformat(i.attrib["asofDate"]),
-                report_type=i.attrib["reportType"],
-                period=i.attrib["period"],
-                currency=curr,
-                value=float(i.text),
-            )
-            for i in fs
-            if i.attrib["reportType"] == "TTM"
-        ]
-        return _div_ps_ttm
-
-    def get_revenue_ttm(self) -> list[Revenue]:
-        """Revenue trailing 12 months"""
-        fa = './TotalRevenues/*[@reportType="TTM"]'
-        fs = self.xml_report.fin_summary.findall(fa)
-        _revenue_ttm = [
+        _revenue = [
             Revenue(
                 as_of_date=fromisoformat(tr.attrib["asofDate"]),
-                report_type="TTM",
+                report_type=tr.attrib["reportType"],
+                period=tr.attrib["period"],
                 revenue=float(tr.text),
             )
             for tr in fs
-        ]
-        return _revenue_ttm
-
-    def get_revenue_q(self) -> list[Revenue]:
-        """Quarterly Revenue"""
-        fa = './TotalRevenues/*[@reportType="A"]'
-        fs = self.xml_report.fin_summary.findall(fa)
-
-        _revenue_q = [
-            Revenue(
-                as_of_date=fromisoformat(tr.attrib["asofDate"]),
-                report_type="A",
-                revenue=float(tr.text),
+            if (
+                report_type is None
+                or (report_type is not None and tr.attrib["reportType"] == report_type)
             )
-            for tr in fs
-            if tr.attrib["period"] == "3M"
+            and (
+                period is None or (period is not None and tr.attrib["period"] == period)
+            )
         ]
-        return _revenue_q
+        return _revenue
 
-    def get_eps_ttm(self) -> list[EarningsPerShare]:
+    def get_eps(
+        self,
+        report_type: SummaryReportType = None,
+        period: SummaryPeriod = None,
+    ) -> list[EarningsPerShare]:
         """Earnings per share"""
-        fa = './EPSs/*[@reportType="TTM"]'
-        fs = self.xml_report.fin_summary.findall(fa)
-
-        _eps_ttm = [
+        fa = "./EPSs"
+        fs = self.xml_report.fin_summary.find(fa)
+        _eps = [
             EarningsPerShare(
-                as_of_date=fromisoformat(e.attrib["asofDate"]),
-                report_type="TTM",
-                eps=float(e.text),
+                as_of_date=fromisoformat(tr.attrib["asofDate"]),
+                report_type=tr.attrib["reportType"],
+                period=tr.attrib["period"],
+                eps=float(tr.text),
             )
-            for e in fs
-        ]
-        return _eps_ttm
-
-    def get_eps_q(self) -> list[EarningsPerShare]:
-        """Earnings per share quarterly"""
-        fa = './EPSs/*[@reportType="A"]'
-        fs = self.xml_report.fin_summary.findall(fa)
-
-        _eps_q = [
-            EarningsPerShare(
-                as_of_date=fromisoformat(e.attrib["asofDate"]),
-                report_type="A",
-                eps=float(e.text),
+            for tr in fs
+            if (
+                report_type is None
+                or (report_type is not None and tr.attrib["reportType"] == report_type)
             )
-            for e in fs
-            if e.attrib["period"] == "3M"
+            and (
+                period is None or (period is not None and tr.attrib["period"] == period)
+            )
         ]
-        return _eps_q
+        return _eps
 
     def get_analyst_forecast(self) -> AnalystForecast:
         """Analyst forecast"""
@@ -381,7 +369,7 @@ class XMLParser:
         exchange_code = {
             "code": r.attrib["Code"] for r in fs.findall("./Issues/Issue/Exchange")
         }
-        company_info = CompanyInfo(
+        _company_info = CompanyInfo(
             ticker=issue_id["Ticker"],
             company_name=coids["CompanyName"],
             cik=coids["CIKNo"],
@@ -389,5 +377,4 @@ class XMLParser:
             exchange=exchange["Exchange"],
             irs=coids["IRSNo"],
         )
-        self.__company_info = company_info
-        return self.__company_info
+        return _company_info

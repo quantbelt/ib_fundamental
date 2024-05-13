@@ -4,14 +4,21 @@ Interactive Brokers Fundamental data for humans.
 
 ## Setup
 
-### Instalation
+### Installation
 
 You can install ib_fundamental using pip
 
 ```bash
-# dev
+pip install ib_fundamental
 ```
 
-## Environment variables
+## Usage
 
-ib_fundamental supports the following environment variables.
+
+```python
+from ib_fundamental import CompanyFundamental
+
+# connect to TWS API on localhost:7497
+aapl = CompanyFundamental(symbol="AAPL")
+aapl.company_info
+```

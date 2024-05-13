@@ -18,11 +18,15 @@ from ib_async import IB, FundamentalRatios, Stock, Ticker
 
 from ib_fundamental.objects import (
     AnalystForecast,
+    BalanceSheetStatement,
+    CashFlowStatement,
     CompanyInfo,
     Dividend,
     DividendPerShare,
     EarningsPerShare,
     ForwardYear,
+    IncomeStatement,
+    OwnershipReport,
     RatioSnapshot,
     Revenue,
 )
@@ -77,7 +81,7 @@ class CompanyFundamental:
         self.client.disconnect()
 
     @property
-    def income_annual(self):
+    def income_annual(self) -> list[IncomeStatement]:
         """
         income_annual
         """
@@ -90,7 +94,7 @@ class CompanyFundamental:
             return self.__income_annual
 
     @property
-    def income_annual_mr(self):
+    def income_annual_mr(self) -> IncomeStatement:
         """income_annualMR"""
         try:
             return self.__income_annual_mr
@@ -99,7 +103,7 @@ class CompanyFundamental:
             return self.__income_annual_mr
 
     @property
-    def income_quarter(self):
+    def income_quarter(self) -> list[IncomeStatement]:
         """income_quarter"""
         try:
             return self.__income_quarter
@@ -110,7 +114,7 @@ class CompanyFundamental:
             return self.__income_quarter
 
     @property
-    def income_mrq(self):
+    def income_mrq(self) -> IncomeStatement:
         try:
             return self.__income_mrq
         except AttributeError:
@@ -118,7 +122,7 @@ class CompanyFundamental:
             return self.__income_mrq
 
     @property
-    def balance_annual(self):
+    def balance_annual(self) -> list[BalanceSheetStatement]:
         try:
             return self.__balance_annual
         except AttributeError:
@@ -128,7 +132,7 @@ class CompanyFundamental:
             return self.__balance_annual
 
     @property
-    def balance_annual_mr(self):
+    def balance_annual_mr(self) -> BalanceSheetStatement:
         try:
             return self.__balance_annual_mr
         except AttributeError:
@@ -136,7 +140,7 @@ class CompanyFundamental:
             return self.__balance_annual_mr
 
     @property
-    def balance_quarter(self):
+    def balance_quarter(self) -> list[BalanceSheetStatement]:
         try:
             return self.__balance_quarter
         except AttributeError:
@@ -146,7 +150,7 @@ class CompanyFundamental:
             return self.__balance_quarter
 
     @property
-    def balance_mrq(self):
+    def balance_mrq(self) -> BalanceSheetStatement:
         try:
             return self.__balance_mrq
         except AttributeError:
@@ -154,7 +158,7 @@ class CompanyFundamental:
             return self.__balance_mrq
 
     @property
-    def cashflow_annual(self):
+    def cashflow_annual(self) -> list[CashFlowStatement]:
         try:
             return self.__cashflow_annual
         except AttributeError:
@@ -164,7 +168,7 @@ class CompanyFundamental:
             return self.__cashflow_annual
 
     @property
-    def cashflow_annual_mr(self):
+    def cashflow_annual_mr(self) -> CashFlowStatement:
         try:
             return self.__cashflow_annual_mr
         except AttributeError:
@@ -172,7 +176,7 @@ class CompanyFundamental:
             return self.__cashflow_annual_mr
 
     @property
-    def cashflow_quarter(self):
+    def cashflow_quarter(self) -> list[CashFlowStatement]:
         try:
             return self.__cashflow_quarter
         except AttributeError:
@@ -182,7 +186,7 @@ class CompanyFundamental:
             return self.__cashflow_quarter
 
     @property
-    def cashflow_mrq(self):
+    def cashflow_mrq(self) -> CashFlowStatement:
         try:
             return self.__cashflow_mrq
         except AttributeError:
@@ -190,7 +194,7 @@ class CompanyFundamental:
             return self.__cashflow_mrq
 
     @property
-    def ownership_report(self):
+    def ownership_report(self) -> OwnershipReport:
         """Ownership Report"""
         try:
             return self.__ownership_report
@@ -211,7 +215,9 @@ class CompanyFundamental:
         try:
             return self.__div_ps_q
         except AttributeError:
-            self.__div_ps_q = self.parser.get_div_ps_q()
+            self.__div_ps_q = self.parser.get_div_per_share(
+                report_type="R", period="3M"
+            )
             return self.__div_ps_q
 
     @property
@@ -219,7 +225,7 @@ class CompanyFundamental:
         try:
             return self.__div_ps_ttm
         except AttributeError:
-            self.__div_ps_ttm = self.parser.get_div_ps_ttm()
+            self.__div_ps_ttm = self.parser.get_div_per_share(report_type="TTM")
             return self.__div_ps_ttm
 
     @property
@@ -227,7 +233,7 @@ class CompanyFundamental:
         try:
             return self.__revenue_ttm
         except AttributeError:
-            self.__revenue_ttm = self.parser.get_revenue_ttm()
+            self.__revenue_ttm = self.parser.get_revenue(report_type="TTM")
             return self.__revenue_ttm
 
     @property
@@ -235,11 +241,11 @@ class CompanyFundamental:
         try:
             return self.__revenue_q
         except AttributeError:
-            self.__revenue_q = self.parser.get_revenue_q()
+            self.__revenue_q = self.parser.get_revenue(report_type="R", period="3M")
             return self.__revenue_q
 
     @property
-    def revenue_mrq(self):
+    def revenue_mrq(self) -> Revenue:
         try:
             return self.__revenue_mrq
         except AttributeError:
@@ -251,7 +257,7 @@ class CompanyFundamental:
         try:
             return self.__eps_ttm
         except AttributeError:
-            self.__eps_ttm = self.parser.get_eps_ttm()
+            self.__eps_ttm = self.parser.get_eps(report_type="TTM")
             return self.__eps_ttm
 
     @property
@@ -259,11 +265,11 @@ class CompanyFundamental:
         try:
             return self.__eps_q
         except AttributeError:
-            self.__eps_q = self.parser.get_eps_q()
+            self.__eps_q = self.parser.get_eps(report_type="R", period="3M")
             return self.__eps_q
 
     @property
-    def eps_mrq(self):
+    def eps_mrq(self) -> EarningsPerShare:
         try:
             return self.__eps_mrq
         except AttributeError:
@@ -291,7 +297,7 @@ class CompanyFundamental:
         try:
             return self.__fundamental_ratios
         except AttributeError:
-            self.__fundamental_ratios = FundamentalRatios(**self.client.get_ratios())
+            self.__fundamental_ratios = self.client.get_ratios()
             self.ticker = self.client.ib.ticker(self.contract)
             return self.__fundamental_ratios
 

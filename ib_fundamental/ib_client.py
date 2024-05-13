@@ -4,8 +4,6 @@ Created on Fri Apr 30 16:21:58 2021
 
 @author: gonzo
 """
-# pylint: disable=attribute-defined-outside-init
-# pylint: disable=missing-function-docstring
 
 __all__ = [
     "IBClient",
@@ -13,7 +11,7 @@ __all__ = [
 
 from typing import Optional
 
-from ib_async import IB, Stock
+from ib_async import IB, FundamentalRatios, Stock
 
 from .objects import ReportType
 
@@ -99,7 +97,7 @@ class IBClient:
             f"No response for report {report_type}, contract: {self.contract}"
         )
 
-    def get_ratios(self) -> dict:
+    def get_ratios(self) -> FundamentalRatios:
         """request market data ticker with fundamental ratios"""
         self.ticker = self.ib.reqMktData(
             contract=self.contract,
@@ -109,7 +107,7 @@ class IBClient:
         if self.ticker.fundamentalRatios is None:
             while self.ticker.fundamentalRatios is None:
                 self.ib.sleep(0.0)
-        return vars(self.ticker.fundamentalRatios)  # return dict
+        return self.ticker.fundamentalRatios
 
     def cancel_ticket(self) -> None:
         """cancel ticket market data"""

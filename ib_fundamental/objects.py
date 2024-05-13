@@ -8,9 +8,6 @@ from dataclasses import dataclass
 from datetime import date, datetime
 from typing import Literal, Optional
 
-# pylint: disable-next=unused-import
-from ib_async.objects import FundamentalRatios
-
 # StatementType = Literal["Income", "Balance", "Cash"]
 StatementCode = Literal["INC", "BAL", "CAS"]
 PeriodType = Literal["annual", "quarter"]
@@ -193,7 +190,7 @@ class Dividend:
 
 @dataclass
 class DividendPerShare:
-    """Dividen per share"""
+    """Dividend per share"""
 
     as_of_date: str
     report_type: str
@@ -208,6 +205,7 @@ class Revenue:
 
     as_of_date: datetime
     report_type: str
+    period: str
     revenue: float
 
 
@@ -217,6 +215,7 @@ class EarningsPerShare:
 
     as_of_date: datetime
     report_type: str
+    period: str
     eps: float
 
 
@@ -298,7 +297,7 @@ class CompanyInfo:
 class OwnershipCompany:
     """Ownership Company details"""
 
-    ISIN: str
+    ISIN: str  # pylint: disable=invalid-name
     float_shares: int
     as_of_date: datetime
 
