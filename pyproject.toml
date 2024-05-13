@@ -16,14 +16,27 @@ classifiers = [
   "Operating System :: OS Independent",
   "Development Status :: 3 - Alpha",
 ]
-dependencies = ["ib_async", "pandas", "orjson"]
+dependencies = [
+  "ib_async>=1.0.1",
+  "pandas>=2.2.2",
+  "orjson>=3.10.3",
+  "defusedxml>=0.7.1",
+]
 
 [project.urls]
 "Homepage" = "https://github.com/quantbelt/ib_fundamental"
 "Bug Tracker" = "https://github.com/quantbelt/ib_fundamental/issues"
 
 [project.optional-dependencies] # Optional
-dev = ["black", "pylint", "isort", "mypy", "pre-commit", "pandas-stubs"]
+dev = [
+  "black>=24.4.2",
+  "pylint>=3.1.1",
+  "isort>=5.13.2",
+  "mypy>=1.10.0",
+  "pre-commit>=3.7.1",
+  "pandas-stubs>=2.2.1.240316",
+  "bandit[toml]>=1.7.8",
+]
 #test = ["coverage"]
 
 [tool.isort]
@@ -36,3 +49,6 @@ packages = ["ib_fundamental"]
 # black compatibility
 # https://black.readthedocs.io/en/stable/guides/using_black_with_other_tools.html#pylint
 max-line-length = "88"
+
+[tool.bandit]
+skips = ["B405"]

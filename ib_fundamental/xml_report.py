@@ -5,7 +5,9 @@ Created on Fri Apr 30 16:21:58 2021
 @author: gonzo
 """
 # pylint: disable=attribute-defined-outside-init
-from xml.etree.ElementTree import Element, fromstring
+from xml.etree.ElementTree import Element
+
+from defusedxml.ElementTree import fromstring
 
 from .ib_client import IBClient
 
@@ -30,7 +32,7 @@ class XMLReport:
         try:
             return self.__fin_statements
         except AttributeError:
-            self.__fin_statements = fromstring(
+            self.__fin_statements: Element = fromstring(
                 self.client.ib_req_fund("ReportsFinStatements")
             )
             return self.__fin_statements
@@ -41,7 +43,7 @@ class XMLReport:
         try:
             return self.__fin_summary
         except AttributeError:
-            self.__fin_summary = fromstring(
+            self.__fin_summary: Element = fromstring(
                 self.client.ib_req_fund("ReportsFinSummary")
             )
             return self.__fin_summary
@@ -52,7 +54,9 @@ class XMLReport:
         try:
             return self.__snapshot
         except AttributeError:
-            self.__snapshot = fromstring(self.client.ib_req_fund("ReportSnapshot"))
+            self.__snapshot: Element = fromstring(
+                self.client.ib_req_fund("ReportSnapshot")
+            )
             return self.__snapshot
 
     @property
@@ -61,7 +65,7 @@ class XMLReport:
         try:
             return self.__resc
         except AttributeError:
-            self.__resc = fromstring(self.client.ib_req_fund("RESC"))
+            self.__resc: Element = fromstring(self.client.ib_req_fund("RESC"))
             return self.__resc
 
     @property
@@ -70,7 +74,9 @@ class XMLReport:
         try:
             return self.__ownership
         except AttributeError:
-            self.__ownership = fromstring(self.client.ib_req_fund("ReportsOwnership"))
+            self.__ownership: Element = fromstring(
+                self.client.ib_req_fund("ReportsOwnership")
+            )
             return self.__ownership
 
     @property
@@ -79,5 +85,7 @@ class XMLReport:
         try:
             return self.__calendar
         except AttributeError:
-            self.__calendar = fromstring(self.client.ib_req_fund("CalendarReport"))
+            self.__calendar: Element = fromstring(
+                self.client.ib_req_fund("CalendarReport")
+            )
             return self.__calendar
