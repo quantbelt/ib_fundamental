@@ -303,7 +303,7 @@ class XMLParser:
         return _analyst_forecast
 
     def get_ratios(self) -> RatioSnapshot:
-        """Company ratios shanpshot"""
+        """Company ratios snapshot"""
         fa = ".//Ratios/Group/Ratio"
         fs = self.xml_report.snapshot.findall(fa)
 

@@ -7,7 +7,7 @@ Created on Thu May 9 16:21:58 2021
 # pylint: disable=too-many-instance-attributes
 from dataclasses import dataclass
 from datetime import date, datetime
-from typing import Literal, Optional
+from typing import Literal, Optional, Union
 
 StatementCode = Literal["INC", "BAL", "CAS"]
 PeriodType = Literal["annual", "quarter"]
@@ -20,6 +20,12 @@ ReportType = Literal[
     "ReportsOwnership",
     "CalendarReport",
 ]
+
+statement_type = {
+    "INC": "Income Statement",
+    "BAL": "Balance Sheet Statement",
+    "CAS": "Cash Flow Statement",
+}
 
 
 @dataclass
@@ -154,6 +160,12 @@ class CashFlowStatement(FinancialStatement):
     sncc: Optional[float] = None
     scip: Optional[float] = None
     sctp: Optional[float] = None
+
+
+BalanceSheetSet = list[BalanceSheetStatement]
+IncomeSet = list[IncomeStatement]
+CashFlowSet = list[CashFlowStatement]
+StatementData = Union[BalanceSheetSet, IncomeSet, CashFlowSet]
 
 
 @dataclass

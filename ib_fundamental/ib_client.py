@@ -50,13 +50,13 @@ class IBClient:
         )
 
     def __del__(self):
-        self.disconnect()
+        self.cancel_ticket()
 
     def __enter__(self):
         return self
 
     def __exit__(self, *_exc):
-        self.disconnect()
+        self.cancel_ticket()
 
     def make_contract(
         self, symbol: str, exchange: str = "SMART", currency: str = "USD"

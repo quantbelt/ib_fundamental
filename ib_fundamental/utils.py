@@ -2,8 +2,9 @@
 """
 Created on Thu May 9 18:21:58 2021
 
-@author: gonzo
+@author: gnzsnz
 """
+
 import re
 from typing import Any, Optional
 
@@ -13,10 +14,10 @@ from pandas import DataFrame
 re_pattern = re.compile(r"(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])")
 
 
-def to_dataframe(table: list[dict], key: Optional[str] = None) -> DataFrame:
+def to_dataframe(table: Any, key: Optional[str] = None) -> DataFrame:
     """converts a list of dicts to a data frame
     Args:
-        table (list(dict())): list of dicts
+        table (list(dict())): list of dicts/dataclasses
         key (str, optional): index dict key.
     Returns:
         pd.DataFrame: dataframe
