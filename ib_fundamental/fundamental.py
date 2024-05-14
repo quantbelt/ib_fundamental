@@ -14,7 +14,7 @@ __all__ = [
 from datetime import datetime
 from typing import Optional
 
-from ib_async import IB, FundamentalRatios, Stock, Ticker
+from ib_async import IB, Dividends, FundamentalRatios, Stock, Ticker
 
 from ib_fundamental.objects import (
     AnalystForecast,
@@ -42,14 +42,7 @@ class CompanyFundamental:
 
     # pylint: disable=too-many-arguments,too-many-public-methods
     # pylint: disable=too-many-instance-attributes
-    def __init__(
-        self,
-        symbol: str,
-        host: str = "localhost",
-        port: int = 7497,
-        client_id=111,
-        ib: Optional[IB] = None,
-    ) -> None:
+    def __init__(self, symbol: str, ib: IB) -> None:
         """Args:
         symbol (str): Company symbol/ticker
         host (str, optional): TWS API hostname. Defaults to "localhost".
@@ -57,9 +50,7 @@ class CompanyFundamental:
         client_id (int, optional): TWS API client id. Defaults to 111.
         ib (Optional[IB], optional): IB instance. Defaults to None.
         """
-        self.client = IBClient(
-            symbol=symbol, host=host, port=port, client_id=client_id, ib=ib
-        )
+        self.client = IBClient(symbol=symbol, ib=ib)
         self.symbol = symbol
         self.contract: Stock = self.client.contract
         self.ticker: Optional[Ticker] = None
@@ -302,6 +293,15 @@ class CompanyFundamental:
             self.__fundamental_ratios = self.client.get_ratios()
             self.ticker = self.client.ib.ticker(self.contract)
             return self.__fundamental_ratios
+
+    @property
+    def dividend_summary(self) -> Dividends:
+        try:
+            return self.__dividend_summary
+        except AttributeError:
+            self.__dividend_summary = self.client.get_dividends()
+            self.ticker = self.client.ib.ticker(self.contract)
+            return self.__dividend_summary
 
     @property
     def fy_estimates(self) -> list[ForwardYear]:

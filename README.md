@@ -16,9 +16,11 @@ pip install ib_fundamental
 
 
 ```python
+import ib_async
 from ib_fundamental import CompanyFundamental
 
 # connect to TWS API on localhost:7497
-aapl = CompanyFundamental(symbol="AAPL")
+ib = ib_async.IB().connect('localhost',7497)
+aapl = CompanyFundamental(symbol="AAPL",ib=ib)
 aapl.company_info
 ```

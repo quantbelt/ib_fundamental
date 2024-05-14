@@ -9,9 +9,7 @@ __all__ = [
     "IBClient",
 ]
 
-from typing import Optional
-
-from ib_async import IB, FundamentalRatios, Stock, Ticker
+from ib_async import IB, Dividends, FundamentalRatios, Stock, Ticker
 
 from .objects import ReportType
 
@@ -20,36 +18,28 @@ class IBClient:
     """IB client"""
 
     ticker: Ticker
+    tick_list: str = "258,456"
 
     # pylint: disable=too-many-arguments
     def __init__(
         self,
         symbol: str,
-        host: str = "localhost",
-        port: int = 7497,
-        client_id=111,
-        ib: Optional[IB] = None,
+        ib: IB,
     ):
 
+        self.ib = ib
         if symbol:
             self.contract: Stock = self.make_contract(symbol)
             self.symbol: str = symbol
         else:
             raise ValueError("No symbol defined.")
-        if ib is not None:
-            self.ib: IB = ib
-        else:
-            self.ib = IB()
 
         if self.ib.isConnected():
             self.host = self.ib.client.host
             self.port = self.ib.client.port
             self.client_id = self.ib.client.clientId
         else:
-            self.host = host
-            self.port = port
-            self.client_id = client_id
-            self.ib.connect(host, port, client_id)
+            raise ValueError("IB is not connected.")
 
     def __repr__(self):
         cls_name = self.__class__.__qualname__
@@ -100,17 +90,30 @@ class IBClient:
             f"No response for report {report_type}, contract: {self.contract}"
         )
 
-    def get_ratios(self) -> FundamentalRatios:
-        """request market data ticker with fundamental ratios"""
+    def get_ticker(self) -> Ticker:
+        """get ticker data"""
         self.ticker = self.ib.reqMktData(
             contract=self.contract,
-            genericTickList="258",  # fundamentalRatios
+            genericTickList=self.tick_list,
             snapshot=False,
         )
+        return self.ticker
+
+    def get_ratios(self) -> FundamentalRatios:
+        """request market data ticker with fundamental ratios"""
+        self.get_ticker()
         if self.ticker.fundamentalRatios is None:
             while self.ticker.fundamentalRatios is None:
                 self.ib.sleep(0.0)
         return self.ticker.fundamentalRatios
+
+    def get_dividends(self) -> Dividends:
+        """get dividend information from ticker"""
+        self.get_ticker()
+        if self.ticker.dividends is None:
+            while self.ticker.dividends is None:
+                self.ib.sleep(0.0)
+        return self.ticker.dividends
 
     def cancel_ticket(self) -> None:
         """cancel ticket market data"""
