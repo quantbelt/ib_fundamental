@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """IB Fundamental data"""
+__all__ = ["CompanyFinancials", "objects", "utils"]
 __author__ = "Gonzalo Sáenz"
 __copyright__ = "Copyright 2024 Gonzalo Sáenz"
 __credits__ = ["Gonzalo Sáenz"]
@@ -10,5 +11,3 @@ __maintainer__ = "Gonzalo Sáenz"
 
 from . import objects, utils
 from .fundamental import CompanyFinancials
-
-__all__ = ["CompanyFinancials", "objects", "utils"]
