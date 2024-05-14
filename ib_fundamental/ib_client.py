@@ -9,7 +9,7 @@ __all__ = [
     "IBClient",
 ]
 
-from ib_async import IB, FundamentalRatios, Stock, Ticker
+from ib_async import IB, Dividends, FundamentalRatios, Stock, Ticker
 
 from .objects import ReportType
 
@@ -18,6 +18,7 @@ class IBClient:
     """IB client"""
 
     ticker: Ticker
+    tick_list: str = "258,456"
 
     # pylint: disable=too-many-arguments
     def __init__(
@@ -89,17 +90,30 @@ class IBClient:
             f"No response for report {report_type}, contract: {self.contract}"
         )
 
-    def get_ratios(self) -> FundamentalRatios:
-        """request market data ticker with fundamental ratios"""
+    def get_ticker(self) -> Ticker:
+        """get ticker data"""
         self.ticker = self.ib.reqMktData(
             contract=self.contract,
-            genericTickList="258",  # fundamentalRatios
+            genericTickList=self.tick_list,
             snapshot=False,
         )
+        return self.ticker
+
+    def get_ratios(self) -> FundamentalRatios:
+        """request market data ticker with fundamental ratios"""
+        self.get_ticker()
         if self.ticker.fundamentalRatios is None:
             while self.ticker.fundamentalRatios is None:
                 self.ib.sleep(0.0)
         return self.ticker.fundamentalRatios
+
+    def get_dividends(self) -> Dividends:
+        """get dividend information from ticker"""
+        self.get_ticker()
+        if self.ticker.dividends is None:
+            while self.ticker.dividends is None:
+                self.ib.sleep(0.0)
+        return self.ticker.dividends
 
     def cancel_ticket(self) -> None:
         """cancel ticket market data"""

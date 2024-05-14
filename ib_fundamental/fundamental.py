@@ -14,7 +14,7 @@ __all__ = [
 from datetime import datetime
 from typing import Optional
 
-from ib_async import IB, FundamentalRatios, Stock, Ticker
+from ib_async import IB, Dividends, FundamentalRatios, Stock, Ticker
 
 from ib_fundamental.objects import (
     AnalystForecast,
@@ -293,6 +293,15 @@ class CompanyFundamental:
             self.__fundamental_ratios = self.client.get_ratios()
             self.ticker = self.client.ib.ticker(self.contract)
             return self.__fundamental_ratios
+
+    @property
+    def dividend_summary(self) -> Dividends:
+        try:
+            return self.__dividend_summary
+        except AttributeError:
+            self.__dividend_summary = self.client.get_dividends()
+            self.ticker = self.client.ib.ticker(self.contract)
+            return self.__dividend_summary
 
     @property
     def fy_estimates(self) -> list[ForwardYear]:
