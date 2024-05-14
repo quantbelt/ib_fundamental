@@ -9,8 +9,6 @@ __all__ = [
     "IBClient",
 ]
 
-from typing import Optional
-
 from ib_async import IB, FundamentalRatios, Stock, Ticker
 
 from .objects import ReportType
@@ -25,31 +23,22 @@ class IBClient:
     def __init__(
         self,
         symbol: str,
-        host: str = "localhost",
-        port: int = 7497,
-        client_id=111,
-        ib: Optional[IB] = None,
+        ib: IB,
     ):
 
+        self.ib = ib
         if symbol:
             self.contract: Stock = self.make_contract(symbol)
             self.symbol: str = symbol
         else:
             raise ValueError("No symbol defined.")
-        if ib is not None:
-            self.ib: IB = ib
-        else:
-            self.ib = IB()
 
         if self.ib.isConnected():
             self.host = self.ib.client.host
             self.port = self.ib.client.port
             self.client_id = self.ib.client.clientId
         else:
-            self.host = host
-            self.port = port
-            self.client_id = client_id
-            self.ib.connect(host, port, client_id)
+            raise ValueError("IB is not connected.")
 
     def __repr__(self):
         cls_name = self.__class__.__qualname__

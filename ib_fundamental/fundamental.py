@@ -42,14 +42,7 @@ class CompanyFundamental:
 
     # pylint: disable=too-many-arguments,too-many-public-methods
     # pylint: disable=too-many-instance-attributes
-    def __init__(
-        self,
-        symbol: str,
-        host: str = "localhost",
-        port: int = 7497,
-        client_id=111,
-        ib: Optional[IB] = None,
-    ) -> None:
+    def __init__(self, symbol: str, ib: IB) -> None:
         """Args:
         symbol (str): Company symbol/ticker
         host (str, optional): TWS API hostname. Defaults to "localhost".
@@ -57,9 +50,7 @@ class CompanyFundamental:
         client_id (int, optional): TWS API client id. Defaults to 111.
         ib (Optional[IB], optional): IB instance. Defaults to None.
         """
-        self.client = IBClient(
-            symbol=symbol, host=host, port=port, client_id=client_id, ib=ib
-        )
+        self.client = IBClient(symbol=symbol, ib=ib)
         self.symbol = symbol
         self.contract: Stock = self.client.contract
         self.ticker: Optional[Ticker] = None
