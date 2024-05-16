@@ -281,7 +281,7 @@ class CompanyFinancials:
     ) -> DataFrame:
         """Build dataframe for pp"""
         _df = to_dataframe(statement)
-        return _df.T
+        return _df.T.sort_index(axis=1, ascending=False)  # sort columns
 
     def _get_map_items(self, stat_code: StatementCode) -> DataFrame:
         """build map items for pp"""
@@ -408,4 +408,4 @@ class CompanyFinancials:
 
     @property
     def fundamental_ratios(self) -> DataFrame:
-        return to_dataframe([self.data.fundamental_ratios]).T
+        return to_dataframe([vars(self.data.fundamental_ratios)]).T
