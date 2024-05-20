@@ -316,7 +316,7 @@ class CompanyFinancials:
         _l[1:idx] = _names
         _df.columns = _l
         _df.statement_type = _df.statement_type.map(lambda x: statement_type[x])
-        _df = _df.drop(columns="coa_item")
+        _df = _df.drop(columns="coa_item").dropna()
         return _df
 
     def _build_statement(
