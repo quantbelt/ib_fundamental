@@ -71,7 +71,9 @@ class IBClient:
         Returns:
             Contract: Stock contract
         """
-        return Stock(symbol=symbol, exchange=exchange, currency=currency)
+        _stock = Stock(symbol=symbol, exchange=exchange, currency=currency)
+        self.ib.qualifyContracts(_stock)
+        return _stock
 
     def ib_req_fund(self, report_type: ReportType) -> str:
         """
@@ -117,7 +119,10 @@ class IBClient:
 
     def cancel_ticket(self) -> None:
         """cancel ticket market data"""
-        self.ib.cancelMktData(self.contract)
+        if not hasattr(self, "ticker"):
+            return None
+        if self.ticker in self.ib.tickers() and self.is_connected():
+            self.ib.cancelMktData(self.contract)
 
     def is_connected(self) -> bool:
         """is connected to TWS api"""

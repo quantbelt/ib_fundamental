@@ -63,7 +63,7 @@ class XMLParser:
         ----------
         period : 'annual' OR 'quarter', mandatory.
             statement period, annual or quarter. The default is 'annual'.
-        statement : 'Income', 'Balance'or 'Cash'. mandatory.
+        statement : 'INC', 'BAL'or 'CAS'. mandatory.
             the statement to be generated
         end_date : 'YYYY-MM-DD' str format, optional
             statement date. The default is None.
@@ -187,10 +187,12 @@ class XMLParser:
 
         return OwnershipReport(company=company, ownership_details=_l)
 
-    def get_dividend(self) -> list[Dividend]:
+    def get_dividend(self) -> list[Dividend] | None:
         """get dividends"""
         fa = "./Dividends"
         fs = self.xml_report.fin_summary.find(fa)
+        if fs is None:
+            return None
         curr = fs.attrib["currency"]
         _dividend = [
             Dividend(
@@ -210,10 +212,12 @@ class XMLParser:
         self,
         report_type: SummaryReportType = None,
         period: SummaryPeriod = None,
-    ) -> list[DividendPerShare]:
+    ) -> list[DividendPerShare] | None:
         """Dividend per share"""
         fa = "./DividendPerShares"
         fs = self.xml_report.fin_summary.find(fa)
+        if fs is None:
+            return None
         curr = fs.attrib["currency"]
 
         _div_ps = [

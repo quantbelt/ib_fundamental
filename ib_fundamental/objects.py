@@ -46,11 +46,19 @@ class IncomeStatement(FinancialStatement):
 
     statement = "Income Statement"
     srev: Optional[float] = None
+    spre: Optional[float] = None
+    rnii: Optional[float] = None
     sore: Optional[float] = None
     rtlr: Optional[float] = None
+    slba: Optional[float] = None
+    epac: Optional[float] = None
+    rrgl: Optional[float] = None
     scor: Optional[float] = None
     sgrp: Optional[float] = None
     ssga: Optional[float] = None
+    siib: Optional[float] = None
+    stie: Optional[float] = None
+    enii: Optional[float] = None
     erad: Optional[float] = None
     sdpr: Optional[float] = None
     sinn: Optional[float] = None
@@ -79,6 +87,10 @@ class IncomeStatement(FinancialStatement):
     sdbf: Optional[float] = None
     ddps1: Optional[float] = None
     vdes: Optional[float] = None
+    ellp: Optional[float] = None
+    siap: Optional[float] = None
+    snii: Optional[float] = None
+    snie: Optional[float] = None
 
 
 @dataclass
@@ -89,10 +101,13 @@ class BalanceSheetStatement(FinancialStatement):
     acsh: Optional[float] = None
     acae: Optional[float] = None
     asti: Optional[float] = None
+    acdb: Optional[float] = None
     scsi: Optional[float] = None
     aacr: Optional[float] = None
     atrc: Optional[float] = None
     aitl: Optional[float] = None
+    soea: Optional[float] = None
+    antl: Optional[float] = None
     appy: Optional[float] = None
     soca: Optional[float] = None
     atca: Optional[float] = None
@@ -102,14 +117,20 @@ class BalanceSheetStatement(FinancialStatement):
     agwi: Optional[float] = None
     aint: Optional[float] = None
     sinv: Optional[float] = None
+    apre: Optional[float] = None
+    adpa: Optional[float] = None
     altr: Optional[float] = None
     sola: Optional[float] = None
+    soat: Optional[float] = None
+    spol: Optional[float] = None
     atot: Optional[float] = None
     lapb: Optional[float] = None
     lpba: Optional[float] = None
     laex: Optional[float] = None
     lstd: Optional[float] = None
     lcld: Optional[float] = None
+    ldbt: Optional[float] = None
+    sobl: Optional[float] = None
     socl: Optional[float] = None
     ltcl: Optional[float] = None
     lltd: Optional[float] = None
@@ -134,6 +155,7 @@ class BalanceSheetStatement(FinancialStatement):
     qtco: Optional[float] = None
     qtpo: Optional[float] = None
     stbp: Optional[float] = None
+    lstb: Optional[float] = None
 
 
 @dataclass

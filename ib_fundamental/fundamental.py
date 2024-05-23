@@ -60,14 +60,8 @@ class FundamentalData:
         cls_name = self.__class__.__qualname__
         return f"{cls_name}(symbol={self.symbol!r},IB={self.client.ib!r})"
 
-    def __del__(self):
-        self.client.disconnect()
-
     def __enter__(self):
         return self
-
-    def __exit__(self, *_exc):
-        self.client.disconnect()
 
     @property
     def income_annual(self) -> IncomeSet:
@@ -143,29 +137,31 @@ class FundamentalData:
             return self.__ownership_report
 
     @property
-    def dividend(self) -> list[Dividend]:
+    def dividend(self) -> list[Dividend] | None:
         try:
             return self.__dividend
         except AttributeError:
-            self.__dividend = self.parser.get_dividend()
+            self.__dividend: list[Dividend] | None = self.parser.get_dividend()
             return self.__dividend
 
     @property
-    def div_ps_q(self) -> list[DividendPerShare]:
+    def div_ps_q(self) -> list[DividendPerShare] | None:
         try:
             return self.__div_ps_q
         except AttributeError:
-            self.__div_ps_q = self.parser.get_div_per_share(
-                report_type="R", period="3M"
+            self.__div_ps_q: list[DividendPerShare] | None = (
+                self.parser.get_div_per_share(report_type="R", period="3M")
             )
             return self.__div_ps_q
 
     @property
-    def div_ps_ttm(self) -> list[DividendPerShare]:
+    def div_ps_ttm(self) -> list[DividendPerShare] | None:
         try:
             return self.__div_ps_ttm
         except AttributeError:
-            self.__div_ps_ttm = self.parser.get_div_per_share(report_type="TTM")
+            self.__div_ps_ttm: list[DividendPerShare] | None = (
+                self.parser.get_div_per_share(report_type="TTM")
+            )
             return self.__div_ps_ttm
 
     @property
@@ -305,12 +301,12 @@ class CompanyFinancials:
     def _join(
         self, data: DataFrame, header: DataFrame, mapping: DataFrame, idx: int
     ) -> DataFrame:
-        """join data to present it"""
+        """join data to present"""
         _pp = mapping.join(data, on="coa_item")
         _df = pd.concat([header, _pp]).set_index("line_id")
 
         (_names,) = _df.loc[
-            _df.coa_item == "end_date", _df.columns[1:idx]
+            _df["coa_item"] == "end_date", _df.columns[1:idx]
         ].values.tolist()
         _l = _df.columns.to_list()
         _l[1:idx] = _names
@@ -330,82 +326,122 @@ class CompanyFinancials:
         return self._join(data=_data, header=_header, mapping=_map, idx=idx)
 
     @property
-    def balance_quarter(self) -> DataFrame:
+    def balance_quarter(self) -> DataFrame | None:
         """Quarterly balance statement"""
-        return self._build_statement(self.data.balance_quarter, "BAL", 6)
+        if self.data.balance_quarter:
+            return self._build_statement(self.data.balance_quarter, "BAL", 6)
+        return None
 
     @property
-    def balance_annual(self) -> DataFrame:
-        return self._build_statement(self.data.balance_annual, "BAL", 7)
+    def balance_annual(self) -> DataFrame | None:
+        if self.data.balance_annual:
+            return self._build_statement(self.data.balance_annual, "BAL", 7)
+        return None
 
     @property
-    def income_quarter(self) -> DataFrame:
-        return self._build_statement(self.data.income_quarter, "INC", 6)
+    def income_quarter(self) -> DataFrame | None:
+        if self.data.income_quarter:
+            return self._build_statement(self.data.income_quarter, "INC", 6)
+        return None
 
     @property
-    def income_annual(self) -> DataFrame:
-        return self._build_statement(self.data.income_annual, "INC", 7)
+    def income_annual(self) -> DataFrame | None:
+        if self.data.income_annual:
+            return self._build_statement(self.data.income_annual, "INC", 7)
+        return None
 
     @property
-    def cashflow_quarter(self) -> DataFrame:
-        return self._build_statement(self.data.cashflow_quarter, "CAS", 6)
+    def cashflow_quarter(self) -> DataFrame | None:
+        if self.data.cashflow_annual:
+            return self._build_statement(self.data.cashflow_quarter, "CAS", 6)
+        return None
 
     @property
-    def cashflow_annual(self) -> DataFrame:
-        return self._build_statement(self.data.cashflow_annual, "CAS", 7)
+    def cashflow_annual(self) -> DataFrame | None:
+        if self.data.cashflow_annual:
+            return self._build_statement(self.data.cashflow_annual, "CAS", 7)
+        return None
 
     @property
-    def dividends(self) -> DataFrame:
-        return to_dataframe(self.data.dividend, key="ex_date")
+    def dividends(self) -> DataFrame | None:
+        if self.data.dividend:
+            return to_dataframe(self.data.dividend, key="ex_date")
+        return None
 
     @property
-    def dividends_ps_q(self) -> DataFrame:
-        return to_dataframe(self.data.div_ps_q, key="as_of_date")
+    def dividends_ps_q(self) -> DataFrame | None:
+        if self.data.div_ps_q:
+            return to_dataframe(self.data.div_ps_q, key="as_of_date")
+        return None
 
     @property
-    def dividends_ps_ttm(self) -> DataFrame:
-        return to_dataframe(self.data.div_ps_ttm, key="as_of_date")
+    def dividends_ps_ttm(self) -> DataFrame | None:
+        if self.data.div_ps_ttm:
+            return to_dataframe(self.data.div_ps_ttm, key="as_of_date")
+        return None
 
     @property
-    def revenue_q(self) -> DataFrame:
-        return to_dataframe(self.data.revenue_q, key="as_of_date")
+    def revenue_q(self) -> DataFrame | None:
+        if self.data.revenue_q:
+            return to_dataframe(self.data.revenue_q, key="as_of_date")
+        return None
 
     @property
-    def revenue_ttm(self) -> DataFrame:
-        return to_dataframe(self.data.revenue_ttm, key="as_of_date")
+    def revenue_ttm(self) -> DataFrame | None:
+        if self.data.revenue_ttm:
+            return to_dataframe(self.data.revenue_ttm, key="as_of_date")
+        return None
 
     @property
-    def eps_q(self) -> DataFrame:
-        return to_dataframe(self.data.eps_q, key="as_of_date")
+    def eps_q(self) -> DataFrame | None:
+        if self.data.eps_q:
+            return to_dataframe(self.data.eps_q, key="as_of_date")
+        return None
 
     @property
-    def eps_ttm(self) -> DataFrame:
-        return to_dataframe(self.data.eps_ttm, key="as_of_date")
+    def eps_ttm(self) -> DataFrame | None:
+        if self.data.eps_ttm:
+            return to_dataframe(self.data.eps_ttm, key="as_of_date")
+        return None
 
     @property
-    def ownership(self) -> DataFrame:
-        return to_dataframe(self.data.ownership_report.ownership_details)
+    def ownership(self) -> DataFrame | None:
+        if self.data.ownership_report:
+            return to_dataframe(self.data.ownership_report.ownership_details)
+        return None
 
     @property
-    def fy_actuals(self) -> DataFrame:
-        return to_dataframe(self.data.fy_actuals, key="updated")
+    def fy_actuals(self) -> DataFrame | None:
+        if self.data.fy_actuals:
+            return to_dataframe(self.data.fy_actuals, key="updated")
+        return None
 
     @property
-    def fy_estimates(self) -> DataFrame:
-        return to_dataframe(self.data.fy_estimates)
+    def fy_estimates(self) -> DataFrame | None:
+        if self.data.fy_estimates:
+            return to_dataframe(self.data.fy_estimates)
+        return None
 
     @property
-    def analyst_forecast(self) -> DataFrame:
-        return to_dataframe([self.data.analyst_forecast]).T
+    def analyst_forecast(self) -> DataFrame | None:
+        if self.data.analyst_forecast:
+            return to_dataframe([self.data.analyst_forecast]).T
+        return None
 
     @property
-    def company_information(self) -> DataFrame:
-        return to_dataframe([self.data.company_info]).T
+    def company_information(self) -> DataFrame | None:
+        if self.data.company_info:
+            return to_dataframe([self.data.company_info]).T
+        return None
 
     @property
-    def ratios(self) -> DataFrame:
-        return to_dataframe([self.data.ratios]).T
+    def ratios(self) -> DataFrame | None:
+        if self.data.ratios:
+            return to_dataframe([self.data.ratios]).T
+        return None
 
     @property
-    def fundamental_ratios(self) -> DataFrame:
-        return to_dataframe([vars(self.data.fundamental_ratios)]).T
+    def fundamental_ratios(self) -> DataFrame | None:
+        if self.data.fundamental_ratios:
+            return to_dataframe([vars(self.data.fundamental_ratios)]).T
+        return None
