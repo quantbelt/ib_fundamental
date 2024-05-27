@@ -10,7 +10,7 @@ into ready-to-use pandas data frames.
 You can install ib_fundamental using pip
 
 ```bash
-pip install ib_fundamental
+pip install ib-fundamental
 ```
 
 ## Usage
