@@ -133,6 +133,61 @@ Available data includes:
   - forward year estimates and actuals
 - Company ownership
 
+This is the full list of methods of `CompanyFinancials` class
+
+- analyst_forecast
+- balance_annual
+- balance_quarter
+- cashflow_annual
+- cashflow_quarter
+- company_information
+- dividends
+- dividends_ps_q
+- dividends_ps_ttm
+- eps_q
+- eps_ttm
+- fundamental_ratios
+- fy_actuals
+- fy_estimates
+- income_annual
+- income_quarter
+- ownership
+- ratios
+- revenue_q
+- revenue_tt
+
+You can use `FundamentalData` class that will return company
+fundamental information in `dataclass` format
+
+```python
+from ib_fundamental.fundamental import FundamentalData
+
+[_m for _m in dir(FundamentalData) if _m[:1] != "_"]
+
+['analyst_forecast',
+ 'balance_annual',
+ 'balance_quarter',
+ 'cashflow_annual',
+ 'cashflow_quarter',
+ 'company_info',
+ 'div_ps_q',
+ 'div_ps_ttm',
+ 'dividend',
+ 'dividend_summary',
+ 'eps_q',
+ 'eps_ttm',
+ 'fundamental_ratios',
+ 'fy_actuals',
+ 'fy_estimates',
+ 'income_annual',
+ 'income_quarter',
+ 'ownership_report',
+ 'ratios',
+ 'revenue_q',
+ 'revenue_ttm']
+
+````
+
 
 [reqFundamental]: https://ib-api-reloaded.github.io/ib_async/api.html#ib_async.ib.IB.reqFundamentalData
 [fin_ratios]: http://web.archive.org/web/20200725010343/https://interactivebrokers.github.io/tws-api/fundamental_ratios_tags.html
