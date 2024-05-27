@@ -1,5 +1,5 @@
 ---
-name: Build 🛠️ and test 🧪 ib-fundamental 📈 in Python 🐍
+name: Build 🛠️ and test 🧪 ib-fundamental 📈
 
 on:
     workflow_dispatch:
