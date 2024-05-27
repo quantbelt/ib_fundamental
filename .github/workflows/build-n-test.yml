@@ -1,41 +1,48 @@
+---
 name: Build 🛠️ and test 🧪 ib-fundamental 📈 in Python 🐍
 
 on:
-  workflow_dispatch:
-  push:
-    branches: ["master", "dev"]
-  pull_request:
-    branches: ["master"]
+    workflow_dispatch:
+    push:
+        branches: [master, dev]
+    pull_request:
+        branches: [master]
 
 env:
-  package: ib_fundamental
+    package: ib_fundamental
 
 jobs:
-  build:
+    build:
 
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["pypy3.10", "3.10", "3.11", "3.12"]
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                python-version: [pypy3.10, '3.10', '3.11', '3.12']
 
-    steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{ matrix.python-version }}
-        cache: 'pip'
+        steps:
+            - uses: actions/checkout@v4
+            - name: Set up Python ${{ matrix.python-version }}
+              uses: actions/setup-python@v5
+              with:
+                  python-version: ${{ matrix.python-version }}
+                  cache: pip
     # You can test your matrix by printing the current Python version
-    - name: Display Python version
-      run: python -c "import sys; print(sys.version)"
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip setuptools wheel .[dev]
-    - name: Lint with pylint
-      run: |
-          pylint -rn --rcfile=pyproject.toml ${{ env.package }}
-      continue-on-error: true
+            - name: Display Python version
+              run: python -c "import sys; print(sys.version)"
+            - name: Install dependencies
+              run: |
+                  python -m pip install --upgrade pip setuptools wheel .[dev]
+            - name: Lint with pylint
+              run: |
+                  pylint -rn --rcfile=pyproject.toml ${{ env.package }}
+              continue-on-error: true
+            - name: Install pypa/build
+              run: >-
+                  python3 -m pip install build --user
+            - name: Build a binary wheel and a source tarball
+              run: python3 -m build
     # - name: Test with pytest
     #   run: |
     #     pip install pytest pytest-cov
-    #     pytest tests --doctest-modules --junitxml=junit/test-results.xml --cov=com \ --cov-report=xml --cov-report=html
+    #     pytest tests --doctest-modules --junitxml=junit/test-results.xml \
+    #     --cov=com --cov-report=xml --cov-report=html
