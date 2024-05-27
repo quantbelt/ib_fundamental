@@ -19,7 +19,6 @@ classifiers = [
 dependencies = [
   "ib_async>=1.0.1",
   "pandas>=2.2.2",
-  "orjson>=3.10.3",
   "defusedxml>=0.7.1",
 ]
 

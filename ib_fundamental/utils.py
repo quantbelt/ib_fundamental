@@ -25,7 +25,6 @@ Created on Thu May 9 18:21:58 2021
 import re
 from typing import Any, Optional
 
-import orjson
 from pandas import DataFrame
 
 re_pattern = re.compile(r"(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])")
@@ -43,11 +42,6 @@ def to_dataframe(table: Any, key: Optional[str] = None) -> DataFrame:
     if key is not None:
         df = df.set_index(keys=key, drop=True).sort_index()
     return df
-
-
-def to_json(obj: Any, **kwargs) -> bytes:
-    """converts to JSON"""
-    return orjson.dumps(obj, **kwargs)  # pylint: disable=no-member
 
 
 def camel_to_snake(camel: str) -> str:
