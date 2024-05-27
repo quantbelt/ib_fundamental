@@ -50,6 +50,7 @@ Temporary Items
 __pycache__/
 *.py[cod]
 *$py.class
+junit/
 
 # C extensions
 *.so
