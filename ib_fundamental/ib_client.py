@@ -140,6 +140,7 @@ class IBClient:
             return None
         if self.ticker in self.ib.tickers() and self.is_connected():
             self.ib.cancelMktData(self.contract)
+        return None
 
     def is_connected(self) -> bool:
         """is connected to TWS api"""
