@@ -13,15 +13,15 @@ repos:
   rev: 24.4.2
   hooks:
   - id: black
-# - repo: https://github.com/PyCQA/pylint
-#   rev: v3.1.0
-#   hooks:
-#   - id: pylint
-#     entry: pylint
-#     types: [python]
-#     args: ["-rn", # Only display messages
-#       "--rcfile=pyproject.toml", # Link to your config file
-#     ]
+- repo: https://github.com/PyCQA/pylint
+  rev: v3.2.2
+  hooks:
+  - id: pylint
+    entry: pyenv which pylint
+    types: [python]
+    args: ["-rn", # Only display messages
+      "--rcfile=pyproject.toml", # Link to your config file
+    ]
 - repo: https://github.com/PyCQA/flake8
   rev: 7.0.0
   hooks:
