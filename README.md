@@ -19,7 +19,7 @@ You will need a TWS API port available
 
 ```python
 import ib_async
-from ib_fundamental import CompanyFundamental
+from ib_fundamental import CompanyFinancials
 
 # ib_async.util.startLoop() # if you are in a notebook
 
