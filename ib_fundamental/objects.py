@@ -257,6 +257,7 @@ class Revenue:
     as_of_date: datetime
     report_type: str
     period: str
+    currency: str
     revenue: float
 
 
@@ -267,6 +268,7 @@ class EarningsPerShare:
     as_of_date: datetime
     report_type: str
     period: str
+    currency: str
     eps: float
 
 
