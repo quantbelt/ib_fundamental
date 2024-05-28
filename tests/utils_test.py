@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -16,15 +15,22 @@
 # specific language governing permissions and limitations
 # under the License.
 
-"""IB Fundamental data"""
-__all__ = ["CompanyFinancials", "FundamentalData", "objects", "utils"]
-__author__ = "Gonzalo Sáenz"
-__copyright__ = "Copyright 2024 Gonzalo Sáenz"
-__credits__ = ["Gonzalo Sáenz"]
-__license__ = "Apache 2.0"
-__version__ = "0.0.1"
-__maintainer__ = "Gonzalo Sáenz"
+"""Tests for ib_fundamental utils"""
+
+import json
+
+from ib_fundamental.fundamental import FundamentalData
+from ib_fundamental.utils import to_json
 
 
-from . import objects, utils
-from .fundamental import CompanyFinancials, FundamentalData
+class TestUtils:
+    """Tests for utils module"""
+
+    def test_json_inc_annual(self, fundamental_data: FundamentalData):
+        """test json inc annual"""
+        _inc = fundamental_data.income_annual
+        _json = to_json(_inc)
+        _data = json.loads(_json)
+        # assert
+        assert isinstance(_json, str)
+        assert isinstance(_data, list)

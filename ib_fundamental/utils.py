@@ -17,11 +17,11 @@
 # under the License.
 
 """
-Created on Thu May 9 18:21:58 2021
-
-@author: gnzsnz
+ib_fundamental utility functions
 """
 
+import dataclasses
+import json
 import re
 from typing import Any, Optional
 
@@ -48,3 +48,17 @@ def camel_to_snake(camel: str) -> str:
     """Convert CamelCase to snake_case"""
     # https://stackoverflow.com/questions/1175208/elegant-python-function-to-convert-camelcase-to-snake-case
     return re_pattern.sub("_", camel).lower()
+
+
+def to_json(obj: Any, **kwargs: Any) -> str:
+    """Convert FundamentalData attributes to JSON"""
+
+    class EnhancedJSONEncoder(json.JSONEncoder):
+        """JSON encoder"""
+
+        def default(self, o):
+            if dataclasses.is_dataclass(o):
+                return dataclasses.asdict(o)
+            return super().default(o)
+
+    return json.dumps(obj, cls=EnhancedJSONEncoder, **kwargs)
