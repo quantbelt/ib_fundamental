@@ -34,40 +34,12 @@ class TestXMLReport:
         assert isinstance(_report, XMLReport)
         assert isinstance(_report.client, IBClient)
 
-    def test_fin_statement(self, xml_report):
-        """Test XMLReport.fin_statement"""
+    def test_xml_report_property(self, xml_report_attrs):
+        """Test XMLReport properties"""
         # act
-        _statement = xml_report.fin_statements
+        _attr = xml_report_attrs
         # assert
-        assert isinstance(_statement, Element)
-
-    def test_fin_summary(self, xml_report):
-        """Test XMLReport.fin_summary"""
-        # act
-        _statement = xml_report.fin_summary
-        # assert
-        assert isinstance(_statement, Element)
-
-    def test_snapshot(self, xml_report):
-        """Test XMLReport.snapshot"""
-        # act
-        _statement = xml_report.snapshot
-        # assert
-        assert isinstance(_statement, Element)
-
-    def test_ownership(self, xml_report):
-        """Test XMLReport.ownership"""
-        # act
-        _statement = xml_report.ownership
-        # assert
-        assert isinstance(_statement, Element)
-
-    def test_resc(self, xml_report):
-        """Test XMLReport.rest"""
-        # act
-        _statement = xml_report.resc
-        # assert
-        assert isinstance(_statement, Element)
+        assert isinstance(_attr, Element)
 
     def test_calendar(self, xml_report):
         """Test XMLReport.calendar"""
