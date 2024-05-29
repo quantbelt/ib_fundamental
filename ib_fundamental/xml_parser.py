@@ -264,11 +264,14 @@ class XMLParser:
         """Revenue"""
         fa = "./TotalRevenues"
         fs = self.xml_report.fin_summary.find(fa)
+        curr = fs.attrib["currency"]
+
         _revenue = [
             Revenue(
                 as_of_date=fromisoformat(tr.attrib["asofDate"]),
                 report_type=tr.attrib["reportType"],
                 period=tr.attrib["period"],
+                currency=curr,
                 revenue=float(tr.text),
             )
             for tr in fs
@@ -290,11 +293,14 @@ class XMLParser:
         """Earnings per share"""
         fa = "./EPSs"
         fs = self.xml_report.fin_summary.find(fa)
+        curr = fs.attrib["currency"]
+
         _eps = [
             EarningsPerShare(
                 as_of_date=fromisoformat(tr.attrib["asofDate"]),
                 report_type=tr.attrib["reportType"],
                 period=tr.attrib["period"],
+                currency=curr,
                 eps=float(tr.text),
             )
             for tr in fs

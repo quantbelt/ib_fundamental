@@ -26,28 +26,29 @@ from ib_fundamental.ib_client import IBClient, Stock, Ticker
 
 
 class TestIBClient:
+    """Test class for IBClient"""
 
-    def test_instantiation(self, ib_client: IBClient):
+    def test_instantiation(self, ib_client):
         """test IBClient instance"""
         # assert
         assert isinstance(ib_client, IBClient)
         assert isinstance(ib_client.ib, IB)
         assert ib_client.is_connected()
 
-    def test_make_contract(self, ib_client: IBClient):
+    def test_make_contract(self, ib_client):
         """test IBClient.contract is correct"""
         # assert
         assert isinstance(ib_client.contract, Stock)
         assert ib_client.contract.symbol == ib_client.symbol
 
-    def test_ratios(self, ib_client: IBClient):
+    def test_ratios(self, ib_client):
         """Test FundamentalRatios"""
         # act
         _ratio = ib_client.get_ratios()
         # assert
         assert isinstance(_ratio, FundamentalRatios)
 
-    def test_ticker(self, ib_client: IBClient):
+    def test_ticker(self, ib_client):
         """Test IBClient.ticker"""
         # arrange
         _ticker = ib_client.get_ticker()
@@ -58,42 +59,28 @@ class TestIBClient:
         assert isinstance(_ticker, Ticker)
         assert _ticker.contract == ib_client.contract
 
-    def test_req_fundamental(self, ib_client: IBClient):
+    @pytest.mark.xfail(reason="CalendarReport requires subscription")
+    def test_req_fundamental(self, ib_client_req_fund):
         """Test IBClient.ib_req_fund"""
         # arrange
-        _report_type = [
-            "ReportsFinStatements",
-            "ReportsFinSummary",
-            "ReportSnapshot",
-            "RESC",
-            "ReportsOwnership",
-        ]
-        _reports = [ib_client.ib_req_fund(_r) for _r in _report_type]
+        _report = ib_client_req_fund
         # assert
-        assert len(_reports) == 5
-        assert all([isinstance(_r, str) for _r in _reports])
+        assert isinstance(_report, str)
 
-    def test_req_fundamental_error(self, ib_client: IBClient):
+    def test_req_fundamental_error(self, ib_client):
         """Test IBClient.ib_req_fund raises ValueError"""
         # arrange
-        _report_type = [
-            "ReportsFinStatements",
-            "ReportsFinSummary",
-            "ReportSnapshot",
-            "RESC",
-            "ReportsOwnership",
-            "CalendarReport",
-        ]
+        _report_type = "CalendarReport"
         with pytest.raises(ValueError) as ex_info:
-            _ = [ib_client.ib_req_fund(_r) for _r in _report_type]
+            _ = ib_client.ib_req_fund(_report_type)
         # assert
         assert ex_info.type is ValueError
 
-    def test_is_connected(self, ib_client: IBClient):
+    def test_is_connected(self, ib_client):
         """Test IBClient.is_connected"""
         assert ib_client.is_connected()
 
-    def test_disconnect(self, ib_client: IBClient):
+    def test_disconnect(self, ib_client):
         """Test IBClient.disconnect"""
         # act
         ib_client.disconnect()
