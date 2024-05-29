@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -16,15 +15,33 @@
 # specific language governing permissions and limitations
 # under the License.
 
-"""IB Fundamental data"""
-__all__ = ["CompanyFinancials", "FundamentalData", "objects", "utils"]
-__author__ = "Gonzalo Sáenz"
-__copyright__ = "Copyright 2024 Gonzalo Sáenz"
-__credits__ = ["Gonzalo Sáenz"]
-__license__ = "Apache 2.0"
-__version__ = "0.0.1"
-__maintainer__ = "Gonzalo Sáenz"
+"""Tests for ib_fundamental utils"""
+
+import pytest
+
+from ib_fundamental import FundamentalData
+from ib_fundamental.utils import to_json
+
+fund_data_methods = (
+    _m
+    for _m in dir(FundamentalData)
+    if (_m[:1] != "_" and _m not in ("client", "parser"))
+)
 
 
-from . import objects, utils
-from .fundamental import CompanyFinancials, FundamentalData
+@pytest.fixture(params=fund_data_methods)
+def fund_method(fundamental_data, request):
+    """JSON fixture, send all FundamentalData methods as json"""
+    _m = request.param
+    yield fundamental_data, _m
+
+
+class TestUtils:
+    """Tests for utils module"""
+
+    def test_json_inc_annual(self, fund_method):
+        """test json"""
+        _fund_data, _method = fund_method
+        _json = to_json(getattr(_fund_data, _method))
+        # assert
+        assert isinstance(_json, str)
