@@ -107,6 +107,16 @@ as_of_date
 2024-03-31         TTM    12M   6.460
 
 # and much more
+
+# get data in json format
+
+from ib_fundamental.utils import to_json
+
+# CompanyFinancials.data contains all data in data class format
+to_json(aapl.data.eps_ttm)
+'[{"as_of_date": "2024-03-31T00:00:00", "report_type": "TTM", "period": "12M", "eps": 6.46}, {"as_of_date": "2023-12-31T00:00:00", "report_type": "TTM", "period": "12M", "eps": 6.46}, ...'
+
+
 ```
 
 ## What fundamental data is available?
