@@ -17,14 +17,16 @@
 # under the License.
 
 """
-Created on Thu May 9 18:21:58 2021
-
-@author: gnzsnz
+ib_fundamental utility functions
 """
 
+import dataclasses
+import datetime
+import json
 import re
 from typing import Any, Optional
 
+from ib_async import FundamentalRatios
 from pandas import DataFrame
 
 re_pattern = re.compile(r"(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])")
@@ -48,3 +50,22 @@ def camel_to_snake(camel: str) -> str:
     """Convert CamelCase to snake_case"""
     # https://stackoverflow.com/questions/1175208/elegant-python-function-to-convert-camelcase-to-snake-case
     return re_pattern.sub("_", camel).lower()
+
+
+def to_json(obj: Any, **kwargs: Any) -> str:
+    """Convert FundamentalData attributes to JSON"""
+
+    class EnhancedJSONEncoder(json.JSONEncoder):
+        """JSON encoder for dataclasses and datetime"""
+
+        def default(self, o):
+            if dataclasses.is_dataclass(o):
+                return dataclasses.asdict(o)
+            elif isinstance(o, (datetime.date, datetime.datetime)):
+                return o.isoformat()
+            elif isinstance(o, FundamentalRatios):
+                return vars(o)
+
+            return super().default(o)
+
+    return json.dumps(obj, cls=EnhancedJSONEncoder, **kwargs)
