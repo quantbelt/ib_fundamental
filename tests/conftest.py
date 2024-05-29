@@ -18,6 +18,7 @@
 """IB Fundamental test fixtures"""
 
 import os
+import typing
 from itertools import chain, product, repeat
 
 import pytest
@@ -31,6 +32,7 @@ from ib_fundamental.objects import (
     DividendPerShare,
     EarningsPerShare,
     IncomeStatement,
+    ReportType,
     Revenue,
 )
 from ib_fundamental.xml_parser import XMLParser
@@ -106,14 +108,7 @@ period_type = ["12M", "3M"]
 forward_year_attrs = ["fy_estimates", "fy_actuals"]
 forward_year_parser_attrs = ["get_fy_estimates", "get_fy_actuals"]
 
-req_report_type = [
-    "ReportsFinStatements",
-    "ReportsFinSummary",
-    "ReportSnapshot",
-    "RESC",
-    "ReportsOwnership",
-    # "CalendarReport", # test for failure
-]
+req_report_type = list(typing.get_args(ReportType))
 
 map_items_statement_type = ["CAS", "BAL", "INC"]
 

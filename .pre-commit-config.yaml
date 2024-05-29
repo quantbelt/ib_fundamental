@@ -20,7 +20,7 @@ repos:
           - id: pylint
             entry: pyenv which pylint
             types: [python]
-            args: [-rn, --rcfile=pyproject.toml]
+            args: [-rn, --rcfile=pyproject.toml, tests/, ib_fundamental/]
     - repo: https://github.com/PyCQA/flake8
       rev: 7.0.0
       hooks:

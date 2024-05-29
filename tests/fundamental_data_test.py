@@ -16,7 +16,7 @@
 # under the License.
 
 """Test fundamental FundamentalData module"""
-
+import pytest
 from ib_async import Dividends, FundamentalRatios, Ticker
 
 from ib_fundamental.fundamental import FundamentalData
@@ -58,6 +58,7 @@ class TestFundamentalData:
         assert len(_own.ownership_details) > 1
         assert isinstance(_own.ownership_details[0], OwnershipDetails)
 
+    @pytest.mark.xfail(reason="Non dividend paying companies will fail")
     def test_dividend(self, fundamental_data: FundamentalData):
         """Test FundamentalData dividends"""
         # act
@@ -77,6 +78,7 @@ class TestFundamentalData:
         # assert
         assert isinstance(_div_summary, Dividends)
 
+    @pytest.mark.xfail(reason="Non dividend paying companies will fail")
     def test_financials(self, fundamental_financials):
         """Test FundamentalData financials, dividends per share, revenue,eps"""
         _fin, _class, _report_type, _period_type = fundamental_financials

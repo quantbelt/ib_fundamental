@@ -26,6 +26,7 @@ from ib_fundamental.ib_client import IBClient, Stock, Ticker
 
 
 class TestIBClient:
+    """Test class for IBClient"""
 
     def test_instantiation(self, ib_client):
         """test IBClient instance"""
@@ -58,6 +59,7 @@ class TestIBClient:
         assert isinstance(_ticker, Ticker)
         assert _ticker.contract == ib_client.contract
 
+    @pytest.mark.xfail(reason="CalendarReport requires subscription")
     def test_req_fundamental(self, ib_client_req_fund):
         """Test IBClient.ib_req_fund"""
         # arrange
