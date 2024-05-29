@@ -19,18 +19,30 @@
 
 import json
 
-from ib_fundamental.fundamental import FundamentalData
+import pytest
+
 from ib_fundamental.utils import to_json
+
+
+@pytest.fixture
+def fund_method(fundamental_data):
+    """JSON fixture, send all FundamentalData methods as json"""
+    #
+    _methods = [
+        _m
+        for _m in dir(fundamental_data)
+        if (_m[:1] != "_" and _m not in ("client", "parser"))
+    ]
+    yield from _methods
 
 
 class TestUtils:
     """Tests for utils module"""
 
-    def test_json_inc_annual(self, fundamental_data: FundamentalData):
-        """test json inc annual"""
-        _inc = fundamental_data.income_annual
-        _json = to_json(_inc)
+    def test_json_inc_annual(self, fund_method):
+        """test json"""
+        _json = to_json(fund_method)
         _data = json.loads(_json)
         # assert
         assert isinstance(_json, str)
-        assert isinstance(_data, list)
+        assert isinstance(_data, (list, dict))
