@@ -39,7 +39,7 @@ exchange_code        NASD
 exchange           NASDAQ
 irs             942404110
 
-# Income statement, aapl.income_quarter will pull the quarterly report
+# Annual income statement, while aapl.income_quarter will pull the quarterly report
 aapl.income_annual
 
                                        map_item  2018-09-29  2019-09-28  2020-09-26  2021-09-25  2022-09-24  2023-09-30    statement_type
@@ -73,7 +73,7 @@ line_id
 1770                     Diluted Normalized EPS     3.05148     2.97145     3.27535     5.61402      6.1132     6.13405  Income Statement
 
 # get earnings per share, appl.eps_ttm will pull trailing twelve months eps
-aapl.eps_q
+aapl.eps_ttm
 
            report_type period     eps
 as_of_date
@@ -106,17 +106,15 @@ as_of_date
 2023-12-31         TTM    12M   6.460
 2024-03-31         TTM    12M   6.460
 
-# and much more
-
 # get data in json format
 
 from ib_fundamental.utils import to_json
 
-# CompanyFinancials.data contains all data in data class format
+# CompanyFinancials.data property contains all data in dataclass format
 to_json(aapl.data.eps_ttm)
 '[{"as_of_date": "2024-03-31T00:00:00", "report_type": "TTM", "period": "12M", "eps": 6.46}, {"as_of_date": "2023-12-31T00:00:00", "report_type": "TTM", "period": "12M", "eps": 6.46}, ...'
 
-
+# and much more
 ```
 
 ## What fundamental data is available?
@@ -166,8 +164,9 @@ This is the full list of methods of `CompanyFinancials` class
 - revenue_q
 - revenue_tt
 
-You can use `FundamentalData` class that will return company
-fundamental information in `dataclass` format
+You can use `FundamentalData` class that will return company fundamental
+information in `dataclass` format. Each instance of `CompanyFinancials`
+contains an instance of `FundamentalData` in its `data` property.
 
 ```python
 from ib_fundamental.fundamental import FundamentalData
@@ -196,8 +195,57 @@ from ib_fundamental.fundamental import FundamentalData
  'revenue_q',
  'revenue_ttm']
 
+# get quarterly revenue
+aapl.data.revenue_q
+
+[Revenue(as_of_date=datetime.datetime(2024, 3, 31, 0, 0), report_type='R', period='3M', revenue=90753000000.0),
+ Revenue(as_of_date=datetime.datetime(2023, 12, 31, 0, 0), report_type='R', period='3M', revenue=119575000000.0),
+ Revenue(as_of_date=datetime.datetime(2023, 9, 30, 0, 0), report_type='R', period='3M', revenue=89498000000.0),
+ Revenue(as_of_date=datetime.datetime(2023, 6, 30, 0, 0), report_type='R', period='3M', revenue=81797000000.0),
+ Revenue(as_of_date=datetime.datetime(2023, 3, 31, 0, 0), report_type='R', period='3M', revenue=94836000000.0),
+ Revenue(as_of_date=datetime.datetime(2022, 12, 31, 0, 0), report_type='R', period='3M', revenue=117154000000.0),
+ Revenue(as_of_date=datetime.datetime(2022, 9, 30, 0, 0), report_type='R', period='3M', revenue=90146000000.0),
+ Revenue(as_of_date=datetime.datetime(2022, 6, 30, 0, 0), report_type='R', period='3M', revenue=82959000000.0),
+ Revenue(as_of_date=datetime.datetime(2022, 3, 31, 0, 0), report_type='R', period='3M', revenue=97278000000.0),
+ Revenue(as_of_date=datetime.datetime(2021, 12, 31, 0, 0), report_type='R', period='3M', revenue=123945000000.0),
+ Revenue(as_of_date=datetime.datetime(2021, 9, 30, 0, 0), report_type='R', period='3M', revenue=83360000000.0),
+ Revenue(as_of_date=datetime.datetime(2021, 6, 30, 0, 0), report_type='R', period='3M', revenue=81434000000.0),
+ Revenue(as_of_date=datetime.datetime(2021, 3, 31, 0, 0), report_type='R', period='3M', revenue=89584000000.0),
+ Revenue(as_of_date=datetime.datetime(2020, 12, 31, 0, 0), report_type='R', period='3M', revenue=111439000000.0),
+ Revenue(as_of_date=datetime.datetime(2020, 9, 30, 0, 0), report_type='R', period='3M', revenue=64698000000.0),
+ Revenue(as_of_date=datetime.datetime(2020, 6, 30, 0, 0), report_type='R', period='3M', revenue=59685000000.0),
+ Revenue(as_of_date=datetime.datetime(2020, 3, 31, 0, 0), report_type='R', period='3M', revenue=58313000000.0),
+ Revenue(as_of_date=datetime.datetime(2019, 12, 31, 0, 0), report_type='R', period='3M', revenue=91819000000.0),
+ Revenue(as_of_date=datetime.datetime(2019, 9, 30, 0, 0), report_type='R', period='3M', revenue=64040000000.0),
+ Revenue(as_of_date=datetime.datetime(2019, 6, 30, 0, 0), report_type='R', period='3M', revenue=53809000000.0),
+ Revenue(as_of_date=datetime.datetime(2019, 3, 31, 0, 0), report_type='R', period='3M', revenue=58015000000.0),
+ Revenue(as_of_date=datetime.datetime(2018, 12, 31, 0, 0), report_type='R', period='3M', revenue=84310000000.0),
+ Revenue(as_of_date=datetime.datetime(2018, 9, 30, 0, 0), report_type='R', period='3M', revenue=62900000000.0),
+ Revenue(as_of_date=datetime.datetime(2018, 6, 30, 0, 0), report_type='R', period='3M', revenue=53265000000.0),
+ Revenue(as_of_date=datetime.datetime(2018, 3, 31, 0, 0), report_type='R', period='3M', revenue=61137000000.0),
+ Revenue(as_of_date=datetime.datetime(2017, 12, 31, 0, 0), report_type='R', period='3M', revenue=88293000000.0),
+ Revenue(as_of_date=datetime.datetime(2017, 9, 30, 0, 0), report_type='R', period='3M', revenue=52579000000.0),
+ Revenue(as_of_date=datetime.datetime(2017, 6, 30, 0, 0), report_type='R', period='3M', revenue=45408000000.0)]
+
 ````
 
+## Contributing
+
+If you find a bug please open an issue, pull requests are always welcome.
+
+To develop with `ib_fundamental` please follow these steps
+
+```bash
+git clone https://github.com/quantbelt/ib_fundamental.git
+cd ib_fundamental
+# install development dependencies
+pip install .[dev]
+# do your things
+# run linters and code quality checks
+pre-commit
+# run tests with tox, requires pypy310,py{310,311,312}
+tox
+```
 
 [reqFundamental]: https://ib-api-reloaded.github.io/ib_async/api.html#ib_async.ib.IB.reqFundamentalData
 [fin_ratios]: http://web.archive.org/web/20200725010343/https://interactivebrokers.github.io/tws-api/fundamental_ratios_tags.html
