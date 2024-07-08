@@ -61,9 +61,9 @@ def to_json(obj: Any, **kwargs: Any) -> str:
         def default(self, o):
             if dataclasses.is_dataclass(o):
                 return dataclasses.asdict(o)
-            elif isinstance(o, (datetime.date, datetime.datetime)):
+            if isinstance(o, (datetime.date, datetime.datetime)):
                 return o.isoformat()
-            elif isinstance(o, FundamentalRatios):
+            if isinstance(o, FundamentalRatios):
                 return vars(o)
 
             return super().default(o)
