@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ib_fundamental"
-version = "0.0.2"
+dynamic = ["version"]
 authors = [{ name = "gnzsnz" }]
 description = "Interactive Brokers Fundamental data for humans"
 readme = "README.md"
@@ -46,6 +46,9 @@ profile = "black"
 
 [tool.setuptools]
 packages = ["ib_fundamental"]
+
+[tool.setuptools.dynamic]
+version = {attr = "ib_fundamental.__version__"}
 
 [tool.pylint.main]
 load-plugins = ["pylint_pytest"]
