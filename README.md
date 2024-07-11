@@ -30,7 +30,7 @@ ib = ib_async.IB().connect('localhost',7497)
 aapl = CompanyFinancials(symbol="AAPL",ib=ib)
 
 # get company info
-aapl.company_info
+aapl.company_information
                         0
 ticker               AAPL
 company_name    Apple Inc

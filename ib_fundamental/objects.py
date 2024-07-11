@@ -45,7 +45,7 @@ statement_type = {
 }
 
 
-@dataclass
+@dataclass(slots=True)
 class FinancialStatement:
     """Financial Statement Base class"""
 
@@ -57,7 +57,7 @@ class FinancialStatement:
     date_10K: str = ""  # pylint: disable=invalid-name
 
 
-@dataclass
+@dataclass(slots=True)
 class IncomeStatement(FinancialStatement):
     """Income Statement"""
 
@@ -110,7 +110,7 @@ class IncomeStatement(FinancialStatement):
     snie: Optional[float] = None
 
 
-@dataclass
+@dataclass(slots=True)
 class BalanceSheetStatement(FinancialStatement):
     """Balance Sheet class"""
 
@@ -175,7 +175,7 @@ class BalanceSheetStatement(FinancialStatement):
     lstb: Optional[float] = None
 
 
-@dataclass
+@dataclass(slots=True)
 class CashFlowStatement(FinancialStatement):
     """Cash flow statement class"""
 
@@ -207,7 +207,7 @@ CashFlowSet = list[CashFlowStatement]
 StatementData = Union[BalanceSheetSet, IncomeSet, CashFlowSet]
 
 
-@dataclass
+@dataclass(slots=True)
 class StatementMap:
     """Financial statement map item"""
 
@@ -226,7 +226,7 @@ statement_map = {
 }
 
 
-@dataclass
+@dataclass(slots=True)
 class Dividend:
     """Dividend"""
 
@@ -239,7 +239,7 @@ class Dividend:
     value: float
 
 
-@dataclass
+@dataclass(slots=True)
 class DividendPerShare:
     """Dividend per share"""
 
@@ -250,7 +250,7 @@ class DividendPerShare:
     value: float
 
 
-@dataclass
+@dataclass(slots=True)
 class Revenue:
     """Revenue"""
 
@@ -261,7 +261,7 @@ class Revenue:
     revenue: float
 
 
-@dataclass
+@dataclass(slots=True)
 class EarningsPerShare:
     """Earnings per share"""
 
@@ -272,7 +272,7 @@ class EarningsPerShare:
     eps: float
 
 
-@dataclass
+@dataclass(slots=True)
 class AnalystForecast:
     """Analyst Forecast"""
 
@@ -288,7 +288,7 @@ class AnalystForecast:
     proj_dps: float
 
 
-@dataclass
+@dataclass(slots=True)
 class RatioSnapshot:
     """Company Ratios"""
 
@@ -316,7 +316,7 @@ class RatioSnapshot:
     employees: float
 
 
-@dataclass
+@dataclass(slots=True)
 class ForwardYear:
     """Forward Year"""
 
@@ -332,7 +332,7 @@ class ForwardYear:
     updated: Optional[datetime] = None
 
 
-@dataclass
+@dataclass(slots=True)
 class CompanyInfo:
     """Company Info"""
 
@@ -344,7 +344,7 @@ class CompanyInfo:
     irs: str
 
 
-@dataclass
+@dataclass(slots=True)
 class OwnershipCompany:
     """Ownership Company details"""
 
@@ -353,7 +353,7 @@ class OwnershipCompany:
     as_of_date: datetime
 
 
-@dataclass
+@dataclass(slots=True)
 class OwnershipDetails:
     """Ownership details"""
 
@@ -365,7 +365,7 @@ class OwnershipDetails:
     currency: Optional[str] = ""
 
 
-@dataclass
+@dataclass(slots=True)
 class OwnershipReport:
     """Ownership Report"""
 
