@@ -62,12 +62,18 @@ class FundamentalData:
 
     # pylint: disable=too-many-arguments,too-many-public-methods
     # pylint: disable=too-many-instance-attributes
-    def __init__(self, symbol: str, ib: IB) -> None:
+    def __init__(
+        self, ib: IB, symbol: str, exchange: str = "SMART", currency: str = "USD"
+    ) -> None:
         """Args:
-        symbol (str): Company symbol/ticker
-        ib (Optional[IB], optional): IB instance. Defaults to None.
+        ib (ib_async.IB): ib_async.IB instance
+        symbol (str): company symbol/ticker
+        exchange (str, optional): exchange. Defaults to "SMART".
+        currency (str, optional): currency. Defaults to "USD".
         """
-        self.client = IBClient(symbol=symbol, ib=ib)
+        self.client = IBClient(
+            symbol=symbol, ib=ib, exchange=exchange, currency=currency
+        )
         self.symbol = symbol
         self.contract: Stock = self.client.contract
         self.ticker: Optional[Ticker] = None
@@ -275,14 +281,19 @@ class FundamentalData:
 class CompanyFinancials:
     """Company Financials"""
 
-    def __init__(self, symbol: str, ib: IB) -> None:
-        """_summary_
-
-        Args:
-            symbol (str): company symbol/ticker
-            ib (ib_async.IB): ib_async.IB instance
+    def __init__(
+        self, ib: IB, symbol: str, exchange: str = "SMART", currency: str = "USD"
+    ) -> None:
         """
-        self.data = FundamentalData(symbol=symbol, ib=ib)
+        Args:
+            ib (ib_async.IB): ib_async.IB instance
+            symbol (str): company symbol/ticker
+            exchange (str, optional): exchange. Defaults to "SMART".
+            currency (str, optional): currency. Defaults to "USD".
+        """
+        self.data = FundamentalData(
+            symbol=symbol, ib=ib, exchange=exchange, currency=currency
+        )
 
     def __repr__(self):
         cls_name = self.__class__.__qualname__

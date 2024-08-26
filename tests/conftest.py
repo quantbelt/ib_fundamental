@@ -149,7 +149,7 @@ def tws_client():
 def ib_client(tws_client, request):
     """IBClient fixture"""
     _symbol = request.param
-    _ib_client = IBClient(symbol=_symbol, ib=tws_client)
+    _ib_client = IBClient(ib=tws_client, symbol=_symbol)
     yield _ib_client
     del _ib_client
 

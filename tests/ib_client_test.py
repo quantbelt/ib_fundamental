@@ -23,6 +23,7 @@ import pytest
 from ib_async import IB, FundamentalRatios
 
 from ib_fundamental.ib_client import IBClient, Stock, Ticker
+from tests.conftest import DJIA
 
 
 class TestIBClient:
@@ -40,6 +41,16 @@ class TestIBClient:
         # assert
         assert isinstance(ib_client.contract, Stock)
         assert ib_client.contract.symbol == ib_client.symbol
+
+    def test_make_contract_custom(self, tws_client):
+        """test IBClient.make_contract with exchange and currency"""
+        ib = tws_client
+        ib_cli = IBClient(ib=ib, symbol=DJIA[0], exchange="SMART", currency="USD")
+        # assert
+        assert isinstance(ib_cli.contract, Stock)
+        assert ib_cli.contract.symbol == ib_cli.symbol
+        assert ib_cli.contract.exchange == "SMART"
+        assert ib_cli.contract.currency == "USD"
 
     def test_ratios(self, ib_client):
         """Test FundamentalRatios"""

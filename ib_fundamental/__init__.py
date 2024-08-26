@@ -22,7 +22,7 @@ __author__ = "Gonzalo Sáenz"
 __copyright__ = "Copyright 2024 Gonzalo Sáenz"
 __credits__ = ["Gonzalo Sáenz"]
 __license__ = "Apache 2.0"
-__version__ = "0.0.3"
+__version__ = "0.0.4"
 __maintainer__ = "Gonzalo Sáenz"
 
 
