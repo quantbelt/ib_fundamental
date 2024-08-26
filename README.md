@@ -29,6 +29,9 @@ ib = ib_async.IB().connect('localhost',7497)
 # create your company financials instance
 aapl = CompanyFinancials(ib=ib,symbol="AAPL")
 
+# or specify exchange and currency
+# aapl = CompanyFinancials(ib=ib,symbol="AAPL",exchange='SMART',currency='USD)
+
 # get company info
 aapl.company_information
                         0
