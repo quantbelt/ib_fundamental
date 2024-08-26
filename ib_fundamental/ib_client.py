@@ -39,14 +39,22 @@ class IBClient:
 
     # pylint: disable=too-many-arguments
     def __init__(
-        self,
-        symbol: str,
-        ib: IB,
+        self, ib: IB, symbol: str, exchange: str = "SMART", currency: str = "USD"
     ):
+        """_summary_
 
+        Args:
+            ib (IB): ib async connection
+            symbol (str): symbol
+            exchange (str, optional): exchange. Defaults to "SMART".
+            currency (str, optional): currency. Defaults to "USD".
+
+        Raises:
+            ValueError: on invalid symbol, IB not connected
+        """
         self.ib = ib
         if symbol:
-            self.contract: Stock = self.make_contract(symbol)
+            self.contract: Stock = self.make_contract(symbol, exchange, currency)
             self.symbol: str = symbol
         else:
             raise ValueError("No symbol defined.")

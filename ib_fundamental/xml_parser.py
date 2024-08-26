@@ -397,11 +397,11 @@ class XMLParser:
             "code": r.attrib["Code"] for r in fs.findall("./Issues/Issue/Exchange")
         }
         _company_info = CompanyInfo(
-            ticker=issue_id["Ticker"],
-            company_name=coids["CompanyName"],
-            cik=coids["CIKNo"],
-            exchange_code=exchange_code["code"],
-            exchange=exchange["Exchange"],
-            irs=coids["IRSNo"],
+            ticker=issue_id.get("Ticker"),
+            company_name=coids.get("CompanyName"),
+            cik=coids.get("CIKNo"),
+            exchange_code=exchange_code.get("code"),
+            exchange=exchange.get("Exchange"),
+            irs=coids.get("IRSNo"),
         )
         return _company_info
