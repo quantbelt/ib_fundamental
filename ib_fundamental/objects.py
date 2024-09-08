@@ -342,6 +342,8 @@ class CompanyInfo:
     exchange_code: str
     exchange: str
     irs: str
+    last_split: datetime
+    stock_split: float
 
 
 @dataclass(slots=True)
