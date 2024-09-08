@@ -26,6 +26,7 @@ __all__ = [
 ]
 
 from datetime import date, datetime
+from functools import lru_cache
 from typing import Literal, Optional
 
 import pandas as pd
@@ -151,6 +152,7 @@ class XMLParser:
 
         return [statement_map[statement](**i, **j) for i, j in zip(fperiods, fs)]
 
+    @lru_cache(maxsize=4)
     def get_map_items(
         self, statement: Optional[StatementCode] = None
     ) -> StatementMapping:
@@ -186,7 +188,11 @@ class XMLParser:
         company = OwnershipCompany(
             ISIN=isin.text,
             float_shares=int(fa.text),
-            as_of_date=fromisoformat(fa.attrib["asofDate"]),
+            as_of_date=(
+                fromisoformat(fa.attrib["asofDate"])
+                if fa.attrib["asofDate"] != "0"
+                else None
+            ),
         )
         _l = []
         fa = fs.findall("./Owner")
