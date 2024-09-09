@@ -396,6 +396,14 @@ class XMLParser:
         exchange_code = {
             "code": r.attrib["Code"] for r in fs.findall("./Issues/Issue/Exchange")
         }
+        last_split = {
+            "last_split": fromisoformat(r.attrib.get("Date"))
+            for r in fs.findall("./Issues/Issue/MostRecentSplit")
+        }
+        stock_split = {
+            "stock_split": float(r.text)
+            for r in fs.findall("./Issues/Issue/MostRecentSplit")
+        }
         _company_info = CompanyInfo(
             ticker=issue_id.get("Ticker"),
             company_name=coids.get("CompanyName"),
@@ -403,5 +411,7 @@ class XMLParser:
             exchange_code=exchange_code.get("code"),
             exchange=exchange.get("Exchange"),
             irs=coids.get("IRSNo"),
+            last_split=last_split.get("last_split"),
+            stock_split=stock_split.get("stock_split"),
         )
         return _company_info

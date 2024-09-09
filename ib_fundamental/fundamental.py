@@ -274,7 +274,7 @@ class FundamentalData:
         try:
             return self.__company_info
         except AttributeError:
-            self.__company_info = self.parser.get_company_info()
+            self.__company_info: CompanyFinancials = self.parser.get_company_info()
             return self.__company_info
 
 
