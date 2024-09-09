@@ -36,6 +36,8 @@ from ib_fundamental.xml_parser import XMLParser
 class TestXMLParser:
     """Test XMLParser class"""
 
+    #  pylint: disable=duplicate-code
+
     def test_statement(self, xml_parser_statement):
         """Test XML Parser statements"""
         _parser_statement, _statement, _period = xml_parser_statement

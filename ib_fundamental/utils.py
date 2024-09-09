@@ -27,7 +27,9 @@ import re
 from typing import Any, Optional
 
 from ib_async import FundamentalRatios
-from pandas import DataFrame
+from pandas import DataFrame, Index, concat
+
+from .objects import StatementCode, StatementData, StatementMapping, statement_type
 
 re_pattern = re.compile(r"(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])")
 
@@ -69,3 +71,45 @@ def to_json(obj: Any, **kwargs: Any) -> str:
             return super().default(o)
 
     return json.dumps(obj, cls=EnhancedJSONEncoder, **kwargs)
+
+
+def get_df_header(data: DataFrame, statement_code: StatementCode) -> DataFrame:
+    """build header for pp"""
+    idx: int = 6
+    _header = data.iloc[:idx]
+    _header = (
+        _header.assign(line_id=range(idx))
+        .assign(statement_type=statement_code)
+        .reset_index()
+        .rename(columns={"index": "map_item"})
+    )
+    return _header.assign(coa_item=_header["map_item"])
+
+
+def join_df(data: DataFrame, header: DataFrame, mapping: DataFrame) -> DataFrame:
+    """join data to present"""
+    _pp = mapping.join(data, on="coa_item")
+    _df = concat([header, _pp]).set_index("line_id")
+
+    _names = _df.loc[
+        _df.loc[:, "coa_item"] == "end_date", _df.columns[1:-2]
+    ].values.tolist()[0]
+    _l = _df.columns.to_list()
+    _l[1:-2] = _names
+    _df.columns = Index(_l)
+    _df["statement_type"] = _df["statement_type"].map(lambda x: statement_type[x])
+    _df = _df.drop(columns="coa_item").dropna()
+    return _df
+
+
+def build_statement(
+    data: StatementData, statement_code: StatementCode, mapping: StatementMapping
+) -> DataFrame:
+    """build statement pp"""
+    _map = to_dataframe(mapping)
+    _map.coa_item = _map.coa_item.str.lower()
+    #
+    _data = to_dataframe(data).T.sort_index(axis=1, ascending=False)  # sort columns
+    _header = get_df_header(data=_data, statement_code=statement_code)
+    # pp
+    return join_df(data=_data, header=_header, mapping=_map)

@@ -35,6 +35,8 @@ from ib_fundamental.objects import (
 class TestFundamentalData:
     """Test FundamentalData class"""
 
+    #  pylint: disable=duplicate-code
+
     def test_statments(self, fundamental_statement):
         """Test FundamentalData statements, income, cashflow, balance sheet
         by period, Annual and Interim

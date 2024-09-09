@@ -28,7 +28,6 @@ __all__ = [
 from datetime import datetime
 from typing import Optional
 
-import pandas as pd
 from ib_async import IB, Dividends, FundamentalRatios, Stock, Ticker
 from pandas import DataFrame
 
@@ -45,11 +44,8 @@ from ib_fundamental.objects import (
     OwnershipReport,
     RatioSnapshot,
     Revenue,
-    StatementCode,
-    StatementData,
-    statement_type,
 )
-from ib_fundamental.utils import to_dataframe
+from ib_fundamental.utils import build_statement, to_dataframe
 
 from .ib_client import IBClient
 from .xml_parser import XMLParser
@@ -94,7 +90,7 @@ class FundamentalData:
         try:
             return self.__income_annual
         except AttributeError:
-            self.__income_annual = self.parser.get_fin_statement(
+            self.__income_annual: IncomeSet = self.parser.get_fin_statement(
                 statement="INC", period="annual"
             )
             return self.__income_annual
@@ -105,7 +101,7 @@ class FundamentalData:
         try:
             return self.__income_quarter
         except AttributeError:
-            self.__income_quarter = self.parser.get_fin_statement(
+            self.__income_quarter: IncomeSet = self.parser.get_fin_statement(
                 statement="INC", period="quarter"
             )
             return self.__income_quarter
@@ -115,7 +111,7 @@ class FundamentalData:
         try:
             return self.__balance_annual
         except AttributeError:
-            self.__balance_annual = self.parser.get_fin_statement(
+            self.__balance_annual: BalanceSheetSet = self.parser.get_fin_statement(
                 statement="BAL", period="annual"
             )
             return self.__balance_annual
@@ -125,7 +121,7 @@ class FundamentalData:
         try:
             return self.__balance_quarter
         except AttributeError:
-            self.__balance_quarter = self.parser.get_fin_statement(
+            self.__balance_quarter: BalanceSheetSet = self.parser.get_fin_statement(
                 statement="BAL", period="quarter"
             )
             return self.__balance_quarter
@@ -135,7 +131,7 @@ class FundamentalData:
         try:
             return self.__cashflow_annual
         except AttributeError:
-            self.__cashflow_annual = self.parser.get_fin_statement(
+            self.__cashflow_annual: CashFlowSet = self.parser.get_fin_statement(
                 statement="CAS", period="annual"
             )
             return self.__cashflow_annual
@@ -145,7 +141,7 @@ class FundamentalData:
         try:
             return self.__cashflow_quarter
         except AttributeError:
-            self.__cashflow_quarter = self.parser.get_fin_statement(
+            self.__cashflow_quarter: CashFlowSet = self.parser.get_fin_statement(
                 statement="CAS", period="quarter"
             )
             return self.__cashflow_quarter
@@ -156,7 +152,9 @@ class FundamentalData:
         try:
             return self.__ownership_report
         except AttributeError:
-            self.__ownership_report = self.parser.get_ownership_report()
+            self.__ownership_report: OwnershipReport = (
+                self.parser.get_ownership_report()
+            )
             return self.__ownership_report
 
     @property
@@ -192,7 +190,9 @@ class FundamentalData:
         try:
             return self.__revenue_ttm
         except AttributeError:
-            self.__revenue_ttm = self.parser.get_revenue(report_type="TTM")
+            self.__revenue_ttm: list[Revenue] = self.parser.get_revenue(
+                report_type="TTM"
+            )
             return self.__revenue_ttm
 
     @property
@@ -200,7 +200,9 @@ class FundamentalData:
         try:
             return self.__revenue_q
         except AttributeError:
-            self.__revenue_q = self.parser.get_revenue(report_type="R", period="3M")
+            self.__revenue_q: list[Revenue] = self.parser.get_revenue(
+                report_type="R", period="3M"
+            )
             return self.__revenue_q
 
     @property
@@ -208,7 +210,9 @@ class FundamentalData:
         try:
             return self.__eps_ttm
         except AttributeError:
-            self.__eps_ttm = self.parser.get_eps(report_type="TTM")
+            self.__eps_ttm: list[EarningsPerShare] = self.parser.get_eps(
+                report_type="TTM"
+            )
             return self.__eps_ttm
 
     @property
@@ -216,7 +220,9 @@ class FundamentalData:
         try:
             return self.__eps_q
         except AttributeError:
-            self.__eps_q = self.parser.get_eps(report_type="R", period="3M")
+            self.__eps_q: list[EarningsPerShare] = self.parser.get_eps(
+                report_type="R", period="3M"
+            )
             return self.__eps_q
 
     @property
@@ -224,7 +230,9 @@ class FundamentalData:
         try:
             return self.__analyst_forecast
         except AttributeError:
-            self.__analyst_forecast = self.parser.get_analyst_forecast()
+            self.__analyst_forecast: AnalystForecast = (
+                self.parser.get_analyst_forecast()
+            )
             return self.__analyst_forecast
 
     @property
@@ -232,24 +240,26 @@ class FundamentalData:
         try:
             return self.__ratios
         except AttributeError:
-            self.__ratios = self.parser.get_ratios()
+            self.__ratios: RatioSnapshot = self.parser.get_ratios()
             return self.__ratios
 
     @property
-    def fundamental_ratios(self) -> FundamentalRatios:
+    def fundamental_ratios(self) -> FundamentalRatios | None:
         try:
             return self.__fundamental_ratios
         except AttributeError:
-            self.__fundamental_ratios = self.client.get_ratios()
+            self.__fundamental_ratios: FundamentalRatios | None = (
+                self.client.get_ratios()
+            )
             self.ticker = self.client.ib.ticker(self.contract)
             return self.__fundamental_ratios
 
     @property
-    def dividend_summary(self) -> Dividends:
+    def dividend_summary(self) -> Dividends | None:
         try:
             return self.__dividend_summary
         except AttributeError:
-            self.__dividend_summary = self.client.get_dividends()
+            self.__dividend_summary: Dividends | None = self.client.get_dividends()
             self.ticker = self.client.ib.ticker(self.contract)
             return self.__dividend_summary
 
@@ -258,7 +268,7 @@ class FundamentalData:
         try:
             return self.__fy_estimates
         except AttributeError:
-            self.__fy_estimates = self.parser.get_fy_estimates()
+            self.__fy_estimates: list[ForwardYear] = self.parser.get_fy_estimates()
             return self.__fy_estimates
 
     @property
@@ -266,7 +276,7 @@ class FundamentalData:
         try:
             return self.__fy_actuals
         except AttributeError:
-            self.__fy_actuals = self.parser.get_fy_actuals()
+            self.__fy_actuals: list[ForwardYear] = self.parser.get_fy_actuals()
             return self.__fy_actuals
 
     @property
@@ -274,7 +284,7 @@ class FundamentalData:
         try:
             return self.__company_info
         except AttributeError:
-            self.__company_info: CompanyFinancials = self.parser.get_company_info()
+            self.__company_info: CompanyInfo = self.parser.get_company_info()
             return self.__company_info
 
 
@@ -299,95 +309,47 @@ class CompanyFinancials:
         cls_name = self.__class__.__qualname__
         return f"{cls_name}(symbol={self.data.symbol!r},IB={self.data.client.ib!r})"
 
-    def _get_data_frame(
-        self,
-        statement: StatementData,
-    ) -> DataFrame:
-        """Build dataframe for pp"""
-        _df = to_dataframe(statement)
-        return _df.T.sort_index(axis=1, ascending=False)  # sort columns
-
-    def _get_map_items(self, stat_code: StatementCode) -> DataFrame:
-        """build map items for pp"""
-        _df = to_dataframe(self.data.parser.get_map_items(statement=stat_code))
-        _df.coa_item = _df.coa_item.str.lower()
-        return _df
-
-    def _get_header(
-        self, data: DataFrame, statement_code: StatementCode, idx: int = 6
-    ) -> DataFrame:
-        """build header for pp"""
-        _header = data.iloc[:idx]
-        _header = (
-            _header.assign(line_id=range(idx))
-            .assign(statement_type=statement_code)
-            .reset_index()
-            .rename(columns={"index": "map_item"})
-        )
-        return _header.assign(coa_item=_header["map_item"])
-
-    def _join(
-        self, data: DataFrame, header: DataFrame, mapping: DataFrame, idx: int
-    ) -> DataFrame:
-        """join data to present"""
-        _pp = mapping.join(data, on="coa_item")
-        _df = pd.concat([header, _pp]).set_index("line_id")
-
-        (_names,) = _df.loc[
-            _df["coa_item"] == "end_date", _df.columns[1:idx]
-        ].values.tolist()
-        _l = _df.columns.to_list()
-        _l[1:idx] = _names
-        _df.columns = _l
-        _df.statement_type = _df.statement_type.map(lambda x: statement_type[x])
-        _df = _df.drop(columns="coa_item").dropna()
-        return _df
-
-    def _build_statement(
-        self, data: StatementData, statement_code: StatementCode, idx: int
-    ) -> DataFrame:
-        """build statement pp"""
-        _map = self._get_map_items(stat_code=statement_code)
-        _data = self._get_data_frame(statement=data)
-        _header = self._get_header(data=_data, statement_code=statement_code)
-        # pp
-        return self._join(data=_data, header=_header, mapping=_map, idx=idx)
-
     @property
     def balance_quarter(self) -> DataFrame | None:
         """Quarterly balance statement"""
         if self.data.balance_quarter:
-            return self._build_statement(self.data.balance_quarter, "BAL", 6)
+            mapping = self.data.parser.get_map_items("BAL")
+            return build_statement(self.data.balance_quarter, "BAL", mapping)
         return None
 
     @property
     def balance_annual(self) -> DataFrame | None:
         if self.data.balance_annual:
-            return self._build_statement(self.data.balance_annual, "BAL", 7)
+            mapping = self.data.parser.get_map_items("BAL")
+            return build_statement(self.data.balance_annual, "BAL", mapping)
         return None
 
     @property
     def income_quarter(self) -> DataFrame | None:
         if self.data.income_quarter:
-            return self._build_statement(self.data.income_quarter, "INC", 6)
+            mapping = self.data.parser.get_map_items("INC")
+            return build_statement(self.data.income_quarter, "INC", mapping)
         return None
 
     @property
     def income_annual(self) -> DataFrame | None:
         if self.data.income_annual:
-            return self._build_statement(self.data.income_annual, "INC", 7)
+            mapping = self.data.parser.get_map_items("INC")
+            return build_statement(self.data.income_annual, "INC", mapping)
         return None
 
     @property
     def cashflow_quarter(self) -> DataFrame | None:
         if self.data.cashflow_annual:
-            return self._build_statement(self.data.cashflow_quarter, "CAS", 6)
+            mapping = self.data.parser.get_map_items("CAS")
+            return build_statement(self.data.cashflow_quarter, "CAS", mapping)
         return None
 
     @property
     def cashflow_annual(self) -> DataFrame | None:
         if self.data.cashflow_annual:
-            return self._build_statement(self.data.cashflow_annual, "CAS", 7)
+            mapping = self.data.parser.get_map_items("CAS")
+            return build_statement(self.data.cashflow_annual, "CAS", mapping)
         return None
 
     @property
@@ -465,7 +427,7 @@ class CompanyFinancials:
     @property
     def ratios(self) -> DataFrame | None:
         if self.data.ratios:
-            return to_dataframe([self.data.ratios]).T
+            return to_dataframe([self.data.ratios]).T.dropna()
         return None
 
     @property

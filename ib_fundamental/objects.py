@@ -230,13 +230,13 @@ statement_map = {
 class Dividend:
     """Dividend"""
 
-    type: str
-    ex_date: datetime
-    record_date: datetime
-    pay_date: datetime
-    declaration_date: datetime
+    type: str | None
+    ex_date: datetime | None
+    record_date: datetime | None
+    pay_date: datetime | None
+    declaration_date: datetime | None
     currency: str
-    value: float
+    value: float | None
 
 
 @dataclass(slots=True)
@@ -299,21 +299,35 @@ class RatioSnapshot:
     vol10davg: float
     ev: float
     mktcap: float
-    ttmrev: float
-    ttmebitd: float
-    ttmniac: float
-    ttmepsxclx: float
-    ttmrevps: float
-    qbvps: float
-    qcshps: float
-    ttmcfshr: float
-    ttmdivshr: float
-    ttmgrosmgn: float
-    ttmroepct: float
-    ttmpr2rev: float
-    peexclxor: float
-    price2bk: float
-    employees: float
+    ttmrev: Optional[float] = None
+    ttmebitd: Optional[float] = None
+    ttmniac: Optional[float] = None
+    ttmepsxclx: Optional[float] = None
+    ttmrevps: Optional[float] = None
+    qbvps: Optional[float] = None
+    qcshps: Optional[float] = None
+    ttmcfshr: Optional[float] = None
+    ttmdivshr: Optional[float] = None
+    ttmgrosmgn: Optional[float] = None
+    ttmroepct: Optional[float] = None
+    ttmpr2rev: Optional[float] = None
+    peexclxor: Optional[float] = None
+    price2bk: Optional[float] = None
+    arev: Optional[float] = None
+    aebitd: Optional[float] = None
+    aniac: Optional[float] = None
+    aepsxclxor: Optional[float] = None
+    arevps: Optional[float] = None
+    abvps: Optional[float] = None
+    acshps: Optional[float] = None
+    acfshr: Optional[float] = None
+    adivshr: Optional[float] = None
+    agrosmgn: Optional[float] = None
+    aroepct: Optional[float] = None
+    apr2rev: Optional[float] = None
+    apeexclxor: Optional[float] = None
+    aprice2bk: Optional[float] = None
+    employees: Optional[float] = None
 
 
 @dataclass(slots=True)
@@ -352,7 +366,7 @@ class OwnershipCompany:
 
     ISIN: str  # pylint: disable=invalid-name
     float_shares: int
-    as_of_date: datetime
+    as_of_date: datetime | None
 
 
 @dataclass(slots=True)
@@ -371,5 +385,5 @@ class OwnershipDetails:
 class OwnershipReport:
     """Ownership Report"""
 
-    company: OwnershipCompany
-    ownership_details: list[OwnershipDetails]
+    company: OwnershipCompany | None = None
+    ownership_details: list[OwnershipDetails] | None = None

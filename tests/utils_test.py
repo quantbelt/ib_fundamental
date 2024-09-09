@@ -36,6 +36,7 @@ def fund_method(fundamental_data, request):
     yield fundamental_data, _m
 
 
+#  pylint: disable=too-few-public-methods
 class TestUtils:
     """Tests for utils module"""
 
