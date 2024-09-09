@@ -244,20 +244,22 @@ class FundamentalData:
             return self.__ratios
 
     @property
-    def fundamental_ratios(self) -> FundamentalRatios:
+    def fundamental_ratios(self) -> FundamentalRatios | None:
         try:
             return self.__fundamental_ratios
         except AttributeError:
-            self.__fundamental_ratios: FundamentalRatios = self.client.get_ratios()
+            self.__fundamental_ratios: FundamentalRatios | None = (
+                self.client.get_ratios()
+            )
             self.ticker = self.client.ib.ticker(self.contract)
             return self.__fundamental_ratios
 
     @property
-    def dividend_summary(self) -> Dividends:
+    def dividend_summary(self) -> Dividends | None:
         try:
             return self.__dividend_summary
         except AttributeError:
-            self.__dividend_summary: Dividends = self.client.get_dividends()
+            self.__dividend_summary: Dividends | None = self.client.get_dividends()
             self.ticker = self.client.ib.ticker(self.contract)
             return self.__dividend_summary
 
