@@ -126,19 +126,21 @@ class IBClient:
         )
         return self.ticker
 
-    def get_ratios(self) -> FundamentalRatios:
+    def get_ratios(self) -> FundamentalRatios | None:
         """request market data ticker with fundamental ratios"""
         self.get_ticker()
         if self.ticker.fundamentalRatios is None:
-            while self.ticker.fundamentalRatios is None:
+            for _ in self.ib.loopUntil(
+                self.ticker.fundamentalRatios is not None, timeout=2
+            ):
                 self.ib.sleep(0.0)
         return self.ticker.fundamentalRatios
 
-    def get_dividends(self) -> Dividends:
+    def get_dividends(self) -> Dividends | None:
         """get dividend information from ticker"""
         self.get_ticker()
         if self.ticker.dividends is None:
-            while self.ticker.dividends is None:
+            for _ in self.ib.loopUntil(self.ticker.dividends is not None, timeout=2):
                 self.ib.sleep(0.0)
         return self.ticker.dividends
 
