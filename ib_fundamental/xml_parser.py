@@ -220,12 +220,24 @@ class XMLParser:
         _dividend = [
             Dividend(
                 type=i.attrib["type"],
-                ex_date=fromisoformat(i.attrib["exDate"]),
-                record_date=fromisoformat(i.attrib["recordDate"]),
-                pay_date=fromisoformat(i.attrib["payDate"]),
-                declaration_date=fromisoformat(i.attrib["declarationDate"]),
+                ex_date=(
+                    fromisoformat(i.attrib["exDate"]) if i.attrib["exDate"] else None
+                ),
+                record_date=(
+                    fromisoformat(i.attrib["recordDate"])
+                    if i.attrib["recordDate"]
+                    else None
+                ),
+                pay_date=(
+                    fromisoformat(i.attrib["payDate"]) if i.attrib["payDate"] else None
+                ),
+                declaration_date=(
+                    fromisoformat(i.attrib["declarationDate"])
+                    if i.attrib["declarationDate"]
+                    else None
+                ),
                 currency=curr,
-                value=float(i.text),
+                value=float(i.text) if i.text else None,
             )
             for i in fs
         ]

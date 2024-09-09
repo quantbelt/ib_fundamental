@@ -230,13 +230,13 @@ statement_map = {
 class Dividend:
     """Dividend"""
 
-    type: str
-    ex_date: datetime
-    record_date: datetime
-    pay_date: datetime
-    declaration_date: datetime
+    type: str | None
+    ex_date: datetime | None
+    record_date: datetime | None
+    pay_date: datetime | None
+    declaration_date: datetime | None
     currency: str
-    value: float
+    value: float | None
 
 
 @dataclass(slots=True)
